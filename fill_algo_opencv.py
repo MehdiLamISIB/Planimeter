@@ -24,7 +24,12 @@ def validCoord(x, y, n, m):
         return False
     return True
 
-def surfaceArea(x,y):
+
+def colourInRange(rmin,colour,rmax):
+    return np.all(rmin<= colour) and np.all(colour <=rmax)
+
+
+def surfaceArea(x,y,range_val):
     global IMAGE_ARRAY
 
     n=IMAGE_ARRAY.shape[1]-1
@@ -36,7 +41,10 @@ def surfaceArea(x,y):
     vis[y][x] = 1
 
     data=np.copy(IMAGE_ARRAY)
+
     preColor=data[y][x]
+    colMin=preColor-np.array([range_val,range_val,range_val])
+    colMax=preColor+np.array([range_val,range_val,range_val])
 
     obj=[]
     obj.append([y, x])
@@ -51,23 +59,23 @@ def surfaceArea(x,y):
         obj.pop(0)
 
         # For Upside Pixel or Cell
-        if validCoord(x + 1, y, n, m) and vis[x + 1][y] == 0 and (data[x + 1][y] == preColor).all():
+        if validCoord(x + 1, y, n, m) and vis[x + 1][y] == 0 and colourInRange(colMin,data[x + 1][y],colMax):
             #print(data[x+1][y]==preColor)
             obj.append([x + 1, y])
             visited.append([x + 1, y])
             vis[x + 1][y] = 1
         # For Downside Pixel or Cell
-        if validCoord(x - 1, y, n, m) and vis[x - 1][y] == 0 and (data[x - 1][y] == preColor).all():
+        if validCoord(x - 1, y, n, m) and vis[x - 1][y] == 0 and colourInRange(colMin,data[x - 1][y],colMax):
             obj.append([x - 1, y])
             visited.append([x - 1, y])
             vis[x - 1][y] = 1
         # For Right side Pixel or Cell
-        if validCoord(x, y + 1, n, m) and vis[x][y + 1] == 0 and (data[x][y + 1] == preColor).all():
+        if validCoord(x, y + 1, n, m) and vis[x][y + 1] == 0 and colourInRange(colMin,data[x][y + 1],colMax):
             obj.append([x, y + 1])
             visited.append([x, y + 1])
             vis[x][y + 1] = 1
         # For Left side Pixel or Cell
-        if validCoord(x, y - 1, n, m) and vis[x][y - 1] == 0 and (data[x][y - 1] == preColor).all():
+        if validCoord(x, y - 1, n, m) and vis[x][y - 1] == 0 and colourInRange(colMin,data[x][y - 1],colMax):
             obj.append([x, y - 1])
             visited.append([x, y - 1])
             vis[x][y - 1] = 1
@@ -78,13 +86,13 @@ def mouse_callback(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         print(f"Mouse clicked at position: ({x}, {y})")
         print(IMAGE_ARRAY[y][x])
-        print("l'aire est de :",surfaceArea(x,y))
+        print("l'aire est de :",surfaceArea(x,y,50))
 
 
 
 
 ### Debut code creation IMAGE
-image = cv2.imread('shape2.png')
+image = cv2.imread('a4_5millimeter.jpg')
 IMAGE_ARRAY = np.array(image)
 BOOL_ARRAY=np.empty(IMAGE_ARRAY.shape)
 
