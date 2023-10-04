@@ -84,10 +84,11 @@ def mouse_callback(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         print(f"Mouse clicked at position: ({x}, {y})")
         print(IMAGE_ARRAY[y][x])
-        print("l'aire est de :",surfaceArea(x,y,50))
+        rangeColorVal=20
+        print("l'aire est de :",surfaceArea(x,y, rangeColorVal ))
 
 ### Debut code creation IMAGE
-image = cv2.imread('circle_same1.jpg') #cv2.imread('a4_5millimeter.jpg')
+image = cv2.imread('Unit_test_2/listForm.png') #cv2.imread('a4_5millimeter.jpg')
 IMAGE_ARRAY = np.array(image)
 BOOL_ARRAY=np.empty(IMAGE_ARRAY.shape)
 
