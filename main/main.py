@@ -86,7 +86,7 @@ def mouse_callback(event, x, y, flags, param):
         # print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
         # print("l'aire est de :", planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY))
         # print("l'aire est de :", REF_DENSITY*pixel_area, "mm²")
-        print("l'aire est de :", REF_DENSITY*pixel_area/100, "cm²")
+        print("l'aire est de :", round(REF_DENSITY*pixel_area/100, 2), "cm²")
 
 
 # Debut code creation IMAGE
