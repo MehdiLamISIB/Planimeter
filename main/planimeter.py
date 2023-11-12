@@ -44,10 +44,10 @@ def surface_area(x, y, range_val, image_array):
     """
     n = image_array.shape[1] - 1
     m = image_array.shape[0] - 1
-    print(n, m)
+    # print(n, m)
     visited = []
     vis = [[0 for _ in range(n)] for _ in range(m)]
-    print(n, m, x, y)
+    # print(n, m, x, y)
     vis[y][x] = 1
 
     data = np.copy(image_array)

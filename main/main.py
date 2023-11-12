@@ -72,8 +72,8 @@ def mouse_callback(event, x, y, flags, param):
             # print(REF_POS)
             cv2.rectangle(scanner_image, (REF_POS[0], REF_POS[1]), (REF_POS[2], REF_POS[3]), (0, 0, 0), -1)
             REF_DENSITY = ref.mm_area_of_pixel_unit(REF_POS)
-            print("l'unité de réference sera --> ", ref.mm_area_of_pixel_unit(REF_POS), "mm² par pixel")
-            print("l'unité de réference sera --> ", ref.mm_per_pixel_unit(REF_POS), "mm par pixel")
+            # print("l'unité de réference sera --> ", ref.mm_area_of_pixel_unit(REF_POS), "mm² par pixel")
+            # print("l'unité de réference sera --> ", ref.mm_per_pixel_unit(REF_POS), "mm par pixel")
             EVENT_REFERENCE_DONE = True
             return None
         return None
