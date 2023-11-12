@@ -14,6 +14,7 @@ Pour une page A4 avec ppp=300
 
 
 INCH_TO_CM = 2.54
+CM_SQUARED_TO_MM_SQUARED = 100
 
 
 def ppi_to_pixel_number(x, y, ppp): return (x*ppp/INCH_TO_CM)*(y*ppp/INCH_TO_CM)
@@ -51,3 +52,15 @@ def draw_rectangle_evenement(event, x, y, flags, param):
         return [x, y, True]
     else:
         return [x, y, None]
+
+
+# pixel_per_cm : retourne le nombre de pixel dans 1cm² ce qui donne la densité pixel/cm²
+
+
+def pixel_per_cm_squared(ref_pos): return abs(ref_pos[2]-ref_pos[0])*abs(ref_pos[3]-ref_pos[1])
+
+
+# mm_per_pixel_unity : donne l'aire d'un pixel en mm²
+
+
+def mm_squared_per_pixel_unit(ref_pos): return pixel_per_cm_squared(ref_pos)/CM_SQUARED_TO_MM_SQUARED
