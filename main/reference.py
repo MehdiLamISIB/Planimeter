@@ -57,16 +57,22 @@ def draw_rectangle_evenement(event, x, y, flags, param):
 # pixel_per_cm : retourne le nombre de pixel dans 1cm² ce qui donne la densité pixel/cm²
 
 
-def pixel_per_cm_squared(ref_pos): return abs(ref_pos[2]-ref_pos[0])*abs(ref_pos[3]-ref_pos[1])
+def pixels_per_cm_squared(ref_pos): return abs(ref_pos[2]-ref_pos[0])*abs(ref_pos[3]-ref_pos[1])
 
 
-# mm_per_pixel_unity : donne l'aire d'un pixel en mm²
+# mm_squared_per_pixel_unit : donne le nombre de pixel par mm²
 
 
-def mm_squared_per_pixel_unit(ref_pos): return pixel_per_cm_squared(ref_pos)/CM_SQUARED_TO_MM_SQUARED
+def pixels_per_mm_squared(ref_pos): return pixels_per_cm_squared(ref_pos)/CM_SQUARED_TO_MM_SQUARED
+
+
+# mm_area_of_pixel_unit : donne l'aire d'un pixel en mm² (1mm²/(nombre de pixel dans 1mm²))
+
+
+def mm_area_of_pixel_unit(ref_pos): return 1/pixels_per_mm_squared(ref_pos)
 
 
 # mm_per_pixel_unit : donne la longueur d'un pixel en mm
 
 
-def mm_per_pixel_unit(ref_pos): return math.sqrt(pixel_per_cm_squared(ref_pos)/CM_SQUARED_TO_MM_SQUARED)
+def mm_per_pixel_unit(ref_pos): return math.sqrt(mm_area_of_pixel_unit(ref_pos))

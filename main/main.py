@@ -71,8 +71,8 @@ def mouse_callback(event, x, y, flags, param):
             # print("reference affiché")
             # print(REF_POS)
             cv2.rectangle(scanner_image, (REF_POS[0], REF_POS[1]), (REF_POS[2], REF_POS[3]), (0, 0, 0), -1)
-            REF_DENSITY = ref.mm_squared_per_pixel_unit(REF_POS)
-            print("l'unité de réference sera --> ", ref.mm_squared_per_pixel_unit(REF_POS), "mm² par pixel")
+            REF_DENSITY = ref.mm_area_of_pixel_unit(REF_POS)
+            print("l'unité de réference sera --> ", ref.mm_area_of_pixel_unit(REF_POS), "mm² par pixel")
             print("l'unité de réference sera --> ", ref.mm_per_pixel_unit(REF_POS), "mm par pixel")
             EVENT_REFERENCE_DONE = True
             return None
@@ -82,6 +82,7 @@ def mouse_callback(event, x, y, flags, param):
         print(IMAGE_ARRAY[y][x])
         range_colorval = 20
         pixel_area = planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY)
+
         print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
         # print("l'aire est de :", planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY))
         print("l'aire est de :", REF_DENSITY*pixel_area, "mm²")
