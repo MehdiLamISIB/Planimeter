@@ -78,14 +78,14 @@ def mouse_callback(event, x, y, flags, param):
             return None
         return None
     if event == cv2.EVENT_LBUTTONDOWN:
-        print(f"Mouse clicked at position: ({x}, {y})")
-        print(IMAGE_ARRAY[y][x])
+        # print(f"Mouse clicked at position: ({x}, {y})")
+        # print(IMAGE_ARRAY[y][x])
         range_colorval = 20
         pixel_area = planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY)
 
-        print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
+        # print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
         # print("l'aire est de :", planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY))
-        print("l'aire est de :", REF_DENSITY*pixel_area, "mm²")
+        # print("l'aire est de :", REF_DENSITY*pixel_area, "mm²")
         print("l'aire est de :", REF_DENSITY*pixel_area/100, "cm²")
 
 
