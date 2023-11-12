@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+import math
 # PPI --> pixel per inch
 # PPP --> pixel par pouce
 # DPI --> dot (encre) per inch
@@ -64,3 +64,9 @@ def pixel_per_cm_squared(ref_pos): return abs(ref_pos[2]-ref_pos[0])*abs(ref_pos
 
 
 def mm_squared_per_pixel_unit(ref_pos): return pixel_per_cm_squared(ref_pos)/CM_SQUARED_TO_MM_SQUARED
+
+
+# mm_per_pixel_unit : donne la longueur d'un pixel en mm
+
+
+def mm_per_pixel_unit(ref_pos): return math.sqrt(pixel_per_cm_squared(ref_pos)/CM_SQUARED_TO_MM_SQUARED)

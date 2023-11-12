@@ -71,7 +71,8 @@ def mouse_callback(event, x, y, flags, param):
             # print("reference affiché")
             # print(REF_POS)
             cv2.rectangle(scanner_image, (REF_POS[0], REF_POS[1]), (REF_POS[2], REF_POS[3]), (0, 0, 0), -1)
-            print("l'unité de réference sera --> ",ref.mm_squared_per_pixel_unit(REF_POS),"mm² par pixel")
+            print("l'unité de réference sera --> ", ref.mm_squared_per_pixel_unit(REF_POS), "mm² par pixel")
+            print("l'unité de réference sera --> ", ref.mm_per_pixel_unit(REF_POS), "mm par pixel")
             return None
         return None
     if event == cv2.EVENT_LBUTTONDOWN:
@@ -99,4 +100,3 @@ while True:
     if cv2.waitKey(10) == 27:
         break
 cv2.destroyAllWindows()
-
