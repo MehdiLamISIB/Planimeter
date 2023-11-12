@@ -33,14 +33,46 @@ Voici une approche générale que vous pouvez suivre pour créer votre planimèt
         mesurez la surface à l'aide des coordonnées de la géométrie et de la distance en pixels.
 
 6. Affichage de l'aire :
-   - Affichez l'aire calculée dans la console ou sur l'interface graphique.
+   FAIT (mais doit optimiser) - Affichez l'aire calculée dans la console ou sur l'interface graphique.
 """
+
+
+# EVENEMENT SUIVIES
+
+
+EVENT_REFERENCE_START = True
+EVENT_REFERENCE_DONE = False
+EVENT_PLANIMETER_MESUREMENT = False
+
+
+# VALEUR GLOBALE
+
+
+REF_POS = [0, 0, 0, 0]
 
 
 # EVENEMENT SOURIS
 
 
 def mouse_callback(event, x, y, flags, param):
+    global EVENT_REFERENCE_START, EVENT_REFERENCE_DONE, EVENT_PLANIMETER_MESUREMENT, REF_POS, scanner_image
+
+    if not EVENT_REFERENCE_DONE:
+        status = ref.draw_rectangle_evenement(event, x, y, flags, param)
+        if event == cv2.EVENT_LBUTTONDOWN and not status[2] and EVENT_REFERENCE_START:
+            REF_POS[0] = status[0]
+            REF_POS[1] = status[1]
+            EVENT_REFERENCE_START = False
+            return None
+        elif status[2]:
+            REF_POS[2] = status[0]
+            REF_POS[3] = status[1]
+            EVENT_REFERENCE_DONE = True
+            print("reference affiché")
+            print(REF_POS)
+            cv2.rectangle(scanner_image, (REF_POS[0], REF_POS[1]), (REF_POS[2], REF_POS[3]), (0, 0, 0), -1)
+            return None
+        return None
     if event == cv2.EVENT_LBUTTONDOWN:
         print(f"Mouse clicked at position: ({x}, {y})")
         print(IMAGE_ARRAY[y][x])
@@ -55,9 +87,15 @@ scanner_image = cv2.imread('../scan_home/100_PPP.png')
 IMAGE_ARRAY = np.array(scanner_image)
 BOOL_ARRAY = np.empty(IMAGE_ARRAY.shape)
 gray_image = cv2.cvtColor(scanner_image, cv2.COLOR_BGR2GRAY)
-# cv2.imshow('GrayImage', gray_image)
-cv2.imshow('Image', scanner_image)
-# cv2.setMouseCallback('GrayImage', mouse_callback)
-cv2.setMouseCallback('Image', mouse_callback)
-cv2.waitKey(0)
+#       cv2.imshow('GrayImage', gray_image)# cv2.setMouseCallback('GrayImage', mouse_callback)
+# cv2.imshow('Image', scanner_image)
+# cv2.setMouseCallback('Image', mouse_callback)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+while True:
+    cv2.imshow('Image', scanner_image)
+    cv2.setMouseCallback('Image', mouse_callback)
+    if cv2.waitKey(10) == 27:
+        break
 cv2.destroyAllWindows()
+

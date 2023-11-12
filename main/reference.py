@@ -1,5 +1,5 @@
+import numpy as np
 import cv2
-
 
 # PPI --> pixel per inch
 # PPP --> pixel par pouce
@@ -33,3 +33,21 @@ def rescale_image(image, xres, yres):
     dim = (width, height)
     image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
     return image
+
+
+def draw_rectangle_evenement(event, x, y, flags, param):
+    """
+    Permet de dessiner la référence de 1cm et de récuper la diagonale
+    :param event: event de la fenêtre openCV
+    :param x: position x de la souris
+    :param y: position y de la souris
+    :param flags:
+    :param param:
+    :return: [position x, position y, référence faites]
+    """
+    if event == cv2.EVENT_LBUTTONDOWN:
+        return [x, y, False]
+    if event == cv2.EVENT_LBUTTONUP:
+        return [x, y, True]
+    else:
+        return [x, y, None]
