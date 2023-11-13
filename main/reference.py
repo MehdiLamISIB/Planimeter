@@ -36,6 +36,9 @@ def rescale_image(image, xres, yres):
     return image
 
 
+# draw_rectangle_evenement : JE NE VAIS PAS UTILISER CELA, JE VAIS CLIQUER ET PUIS CA VA DONNER PIXEL DANS 1cm²
+
+
 def draw_rectangle_evenement(event, x, y, flags, param):
     """
     Permet de dessiner la référence de 1cm et de récuper la diagonale
