@@ -101,6 +101,7 @@ def mouse_callback(event, x, y, flags, param):
         planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
         EVENT_INFOBOX_DISPLAYING = True
 
+
 # Debut code creation IMAGE
 
 
