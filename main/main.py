@@ -19,16 +19,17 @@ Voici une approche générale que vous pouvez suivre pour créer votre planimèt
         pour extraire les contours de la géométrie.
 
 3. Sélection de l'étalon :
-   - Permettez à l'utilisateur de cliquer sur les deux points de l'étalon (1 cm).
-   - Calculez la distance en pixels entre ces points.
-   - Enregistrez cette valeur pour la conversion ultérieure de pixels en cm².
+   CHANGER - Permettez à l'utilisateur de cliquer sur les deux points de l'étalon (1 cm).
+   CHANGER - Calculez la distance en pixels entre ces points.
+   FAIT - Cliquer sur la geometrie de reference et calculer le nombre de pixels
+   FAIT - Enregistrez cette valeur pour la conversion ultérieure de pixels en cm².
 
 4. Conversion des pixels en cm² :
-   - Lorsque l'utilisateur clique sur la géométrie, mesurez la distance entre les points en pixels.
-   - Utilisez la relation entre la distance en pixels et la distance en cm pour convertir l'aire en cm².
+   FAIT - Lorsque l'utilisateur clique sur la géométrie, mesurez la distance entre les points en pixels.
+   FAIT - Utilisez la relation entre la distance en pixels et la distance en cm pour convertir l'aire en cm².
 
 5. Calcul de l'aire :
-   - Lorsque l'utilisateur clique sur une géométrie, 
+   FAIT - Lorsque l'utilisateur clique sur une géométrie, 
         mesurez la surface à l'aide des coordonnées de la géométrie et de la distance en pixels.
 
 6. Affichage de l'aire :

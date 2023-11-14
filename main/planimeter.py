@@ -27,10 +27,10 @@ def info_from_surface(pixels_list, ref_density):
             y_max = y
 
     area = str(round(ref_density*count/100, 2))+" cm²"
-    barycentre = "["+str(int(c_x/count))+","+str(int(c_y/count))+"]"
-    min_coord = "("+str(x_min)+","+str(y_min)+")"
-    max_coord = "("+str(x_max)+","+str(y_max)+")"
-    ratio = str((y_max-y_min)/(x_max-x_min))
+    barycentre = "["+str(int(c_x/count))+";"+str(int(c_y/count))+"]"
+    min_coord = "("+str(x_min)+";"+str(y_min)+")"
+    max_coord = "("+str(x_max)+";"+str(y_max)+")"
+    ratio = str(int((y_max-y_min)/(x_max-x_min)))
     return [("Aire", area),
             ("Barycentre", barycentre),
             ("Min x/y", min_coord),
