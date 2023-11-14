@@ -3,7 +3,6 @@ import numpy as np
 import planimeter as planimeter
 import reference as ref
 
-
 """
 Projet :
 Cela semble être un projet intéressant et un peu complexe, mais nous pouvons le diviser en étapes plus petites. 
@@ -43,7 +42,7 @@ Voici une approche générale que vous pouvez suivre pour créer votre planimèt
 EVENT_REFERENCE_START = True
 EVENT_REFERENCE_DONE = False
 EVENT_PLANIMETER_MESUREMENT = False
-
+EVENT_INFOBOX_DISPLAYING = False
 
 # VALEUR GLOBALE
 
@@ -99,6 +98,7 @@ def mouse_callback(event, x, y, flags, param):
         # print("l'aire est de :", REF_DENSITY*pixel_area, "mm²")
         print("l'aire est de :", round(REF_DENSITY*len(pixel_list)/100, 2), "cm²")
         planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
+        EVENT_INFOBOX_DISPLAYING = True
 
 # Debut code creation IMAGE
 

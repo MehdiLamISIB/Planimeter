@@ -45,7 +45,7 @@ def info_from_surface(pixels_list, ref_density):
 def display_surface_info(characteristics):
     root = tk.Tk()
     root.title("Informations sur la surface")
-    frame = tk.Frame(root, padx=20, pady=10)
+    frame = tk.Frame(root, padx=20, pady=10, name="infobox")
     frame.pack()
 
     def create_label(text):
