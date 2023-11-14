@@ -58,6 +58,17 @@ def mouse_callback(event, x, y, flags, param):
     global EVENT_REFERENCE_START, EVENT_REFERENCE_DONE, EVENT_PLANIMETER_MESUREMENT, \
         REF_POS, scanner_image, REF_DENSITY
 
+    range_colorval = 20
+
+    # Méthode avec click et utilisation algo_planimeter classique
+    if ref.set_reference(event, x, y, flags, param) and not EVENT_REFERENCE_DONE:
+        REF_DENSITY = ref.mm_area_of_pixel_unit_with_counts_know(
+            planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY, False))
+        EVENT_REFERENCE_DONE = True
+        print("Reference calculé")
+        return None
+    # Méthode avec rectangle formé par 2 points
+    """
     if not EVENT_REFERENCE_DONE:
         status = ref.draw_rectangle_evenement(event, x, y, flags, param)
         if event == cv2.EVENT_LBUTTONDOWN and not status[2] and EVENT_REFERENCE_START:
@@ -77,13 +88,13 @@ def mouse_callback(event, x, y, flags, param):
             EVENT_REFERENCE_DONE = True
             return None
         return None
+    """
     if event == cv2.EVENT_LBUTTONDOWN:
         # print(f"Mouse clicked at position: ({x}, {y})")
         # print(IMAGE_ARRAY[y][x])
-        range_colorval = 20
-        pixel_area = planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY)
+        pixel_area = planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY, True)
 
-        # print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
+        print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
         # print("l'aire est de :", planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY))
         # print("l'aire est de :", REF_DENSITY*pixel_area, "mm²")
         print("l'aire est de :", round(REF_DENSITY*pixel_area/100, 2), "cm²")

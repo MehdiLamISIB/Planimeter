@@ -1,4 +1,3 @@
-import numpy as np
 import cv2
 import math
 # PPI --> pixel per inch
@@ -57,6 +56,17 @@ def draw_rectangle_evenement(event, x, y, flags, param):
         return [x, y, None]
 
 
+# set_reference: EVENT N°1 pour meilleur lisibilité
+
+
+def set_reference(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        return True
+    else:
+        return False
+
+
+# FONCTION APPLIQUE SI UTILISATION AVEC 4 COINS ET 2 CLICK SOURIS POUR FAIRE CARREE
 # pixel_per_cm : retourne le nombre de pixel dans 1cm² ce qui donne la densité pixel/cm²
 
 
@@ -79,3 +89,9 @@ def mm_area_of_pixel_unit(ref_pos): return 1/pixels_per_mm_squared(ref_pos)
 
 
 def mm_per_pixel_unit(ref_pos): return math.sqrt(mm_area_of_pixel_unit(ref_pos))
+
+
+# mm_area_of_pixel_unit_with_counts_know: donne l'aire en connaisant le nombre de pixels (pas de calculs en plus)
+
+
+def mm_area_of_pixel_unit_with_counts_know(pixels_count): return 1/(pixels_count/CM_SQUARED_TO_MM_SQUARED)

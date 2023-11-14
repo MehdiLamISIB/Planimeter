@@ -33,13 +33,14 @@ def showfounded_area(visited, n, m):
     cv2.imshow('Area found', img_search)
 
 
-def surface_area(x, y, range_val, image_array):
+def surface_area(x, y, range_val, image_array, showing_result):
     """
     Algorithme en BFS qui utilise la méthode "fill paint"
     :param x: positions horizontal du clic de la souris
     :param y: positions vertical du clic de la souris
     :param range_val: ecart de couleur étant accepté comme compris dans la zone de contour
     :param image_array: table 2D des pixels
+    :param showing_result: permet de debug et verifier le resultat
     :return:
     """
     n = image_array.shape[1] - 1
@@ -89,7 +90,8 @@ def surface_area(x, y, range_val, image_array):
     # On affiche l'aire qui a été trouvé en remappant les pixsels parcourus
     # Dans les 2 cas on retournes les pixels
     try:
-        showfounded_area(vis, n, m)
+        if showing_result:
+            showfounded_area(vis, n, m)
         return len(visited)
     # Je dois utiliser "except Exception" sinon si je fais seulement "except:"
     # Il va aussi prendre en compte "SystemExit" and "KeyboardInterrupt"
