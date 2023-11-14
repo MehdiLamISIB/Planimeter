@@ -1,5 +1,62 @@
+import tkinter as tk
 import numpy as np
 import cv2
+
+
+# recuperer les coordonées des pixels et donnes infos (aire, barycentre, min, max, ratio y/x)
+
+
+def info_from_surface(pixels_list, ref_density):
+    INT_INFITE = 10**26
+    count = len(pixels_list)
+    c_x, c_y = 0, 0
+    x_min, y_min = INT_INFITE, INT_INFITE
+    x_max, y_max = 0, 0
+
+    for i in range(count):
+        x, y = pixels_list[i][0], pixels_list[i][1]
+        c_x += x
+        c_y += y
+        if x < x_min:
+            x_min = x
+        if x > x_max:
+            x_max = x
+        if y < y_min:
+            y_min = y
+        if y > y_max:
+            y_max = y
+
+    area = str(round(ref_density*count/100, 2))+" cm²"
+    barycentre = "["+str(int(c_x/count))+","+str(int(c_y/count))+"]"
+    min_coord = "("+str(x_min)+","+str(y_min)+")"
+    max_coord = "("+str(x_max)+","+str(y_max)+")"
+    ratio = str((y_max-y_min)/(x_max-x_min))
+    return [("Aire", area),
+            ("Barycentre", barycentre),
+            ("Min x/y", min_coord),
+            ("Max x/y", max_coord),
+            ("ratio y/x", ratio)
+            ]
+
+
+# display_surface_info : affiche les infos sur la geometrie
+
+
+def display_surface_info(characteristics):
+    root = tk.Tk()
+    root.title("Informations sur la surface")
+    frame = tk.Frame(root, padx=20, pady=10)
+    frame.pack()
+
+    def create_label(text):
+        return tk.Label(frame, text=text, font=('Arial', 12), padx=10, pady=5, anchor='w')
+
+    for i, (char_name, char_value) in enumerate(characteristics):
+        label = create_label(f"{char_name}: {char_value}")
+        label.grid(row=i, column=0, sticky='w')
+
+    frame.grid(padx=20, pady=20)
+    root.mainloop()
 
 
 # Verifie les coordonnes pour pas depasser
@@ -41,7 +98,7 @@ def surface_area(x, y, range_val, image_array, showing_result):
     :param range_val: ecart de couleur étant accepté comme compris dans la zone de contour
     :param image_array: table 2D des pixels
     :param showing_result: permet de debug et verifier le resultat
-    :return:
+    :return: la liste des pixels visités
     """
     n = image_array.shape[1] - 1
     m = image_array.shape[0] - 1
@@ -92,12 +149,12 @@ def surface_area(x, y, range_val, image_array, showing_result):
     try:
         if showing_result:
             showfounded_area(vis, n, m)
-        return len(visited)
+        return visited
     # Je dois utiliser "except Exception" sinon si je fais seulement "except:"
     # Il va aussi prendre en compte "SystemExit" and "KeyboardInterrupt"
     except Exception:
         print("il a y une erreur")
-        return len(visited)
+        return visited
 
 
 # Montrer les images primitives
