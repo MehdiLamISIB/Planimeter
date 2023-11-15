@@ -50,7 +50,7 @@ def display_surface_info(characteristics):
     root = tk.Tk()
     root.title("Informations sur la surface")
     frame = tk.Frame(root, padx=20, pady=10, name="infobox")
-    frame.pack()
+    frame.grid()
 
     def create_label(text):
         return tk.Label(frame, text=text, font=('Arial', 12), padx=10, pady=5, anchor='w')
@@ -62,7 +62,6 @@ def display_surface_info(characteristics):
     frame.grid(padx=20, pady=20)
     ROOT_INFOBOX_TKINTER = root
     root.mainloop()
-
 
 # Verifie les coordonnes pour pas depasser
 
