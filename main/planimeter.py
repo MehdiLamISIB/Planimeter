@@ -3,6 +3,9 @@ import numpy as np
 import cv2
 
 
+ROOT_INFOBOX_TKINTER = None
+
+
 # recuperer les coordonées des pixels et donnes infos (aire, barycentre, min, max, ratio y/x)
 
 
@@ -27,7 +30,7 @@ def info_from_surface(pixels_list, ref_density):
             y_max = y
 
     area = str(round(ref_density*count/100, 2))+" cm²"
-    barycentre = "["+str(round(c_x/count, 2))+";"+str(round(c_y/count, 2))+"]"
+    barycentre = "("+str(round(c_x/count, 2))+";"+str(round(c_y/count, 2))+")"
     min_coord = "("+str(x_min)+";"+str(y_min)+")"
     max_coord = "("+str(x_max)+";"+str(y_max)+")"
     ratio = str(round((y_max-y_min)/(x_max-x_min), 2))
@@ -35,7 +38,7 @@ def info_from_surface(pixels_list, ref_density):
             ("Barycentre", barycentre),
             ("Min x/y", min_coord),
             ("Max x/y", max_coord),
-            ("ratio y/x", ratio)
+            ("ratio Hauteur/Largeur", ratio)
             ]
 
 
@@ -43,6 +46,7 @@ def info_from_surface(pixels_list, ref_density):
 
 
 def display_surface_info(characteristics):
+    global ROOT_INFOBOX_TKINTER
     root = tk.Tk()
     root.title("Informations sur la surface")
     frame = tk.Frame(root, padx=20, pady=10, name="infobox")
@@ -56,6 +60,7 @@ def display_surface_info(characteristics):
         label.grid(row=i, column=0, sticky='w')
 
     frame.grid(padx=20, pady=20)
+    ROOT_INFOBOX_TKINTER = root
     root.mainloop()
 
 

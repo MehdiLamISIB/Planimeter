@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import planimeter as planimeter
 import reference as ref
-
+import tkinter as tk
 """
 Projet :
 Cela semble être un projet intéressant et un peu complexe, mais nous pouvons le diviser en étapes plus petites. 
@@ -50,13 +50,15 @@ EVENT_INFOBOX_DISPLAYING = False
 
 REF_POS = [0, 0, 0, 0]
 REF_DENSITY = None
+ROOT_TK_WINDOWS = None
+
 
 # EVENEMENT SOURIS
 
 
 def mouse_callback(event, x, y, flags, param):
     global EVENT_REFERENCE_START, EVENT_REFERENCE_DONE, EVENT_PLANIMETER_MESUREMENT, \
-        REF_POS, scanner_image, REF_DENSITY
+        REF_POS, scanner_image, REF_DENSITY, ROOT_TK_WINDOWS
 
     range_colorval = 20
 
@@ -90,9 +92,11 @@ def mouse_callback(event, x, y, flags, param):
         return None
     """
     if event == cv2.EVENT_LBUTTONDOWN:
+        if planimeter.ROOT_INFOBOX_TKINTER is not None:
+            planimeter.ROOT_INFOBOX_TKINTER.destroy()
         # print(f"Mouse clicked at position: ({x}, {y})")
         # print(IMAGE_ARRAY[y][x])
-        pixel_list = planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY, True)
+        pixel_list = planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY, False)
 
         print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
         # print("l'aire est de :", planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY))
