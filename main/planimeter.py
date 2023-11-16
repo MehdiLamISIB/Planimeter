@@ -67,7 +67,7 @@ def display_surface_info(characteristics):
         ROOT_INFOBOX_TKINTER.destroy()
         ROOT_INFOBOX_TKINTER = None
     root = tk.Tk()
-    root.title("Informations sur la surface")
+    root.title("Info surface")
     root.protocol("WM_DELETE_WINDOW", on_closing)
     frame = tk.Frame(root, padx=20, pady=10, name="infobox")
 
