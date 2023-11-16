@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import planimeter as planimeter
 import reference as ref
-import tkinter as tk
 """
 Projet :
 Cela semble être un projet intéressant et un peu complexe, mais nous pouvons le diviser en étapes plus petites. 
