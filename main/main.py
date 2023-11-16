@@ -43,7 +43,6 @@ Voici une approche générale que vous pouvez suivre pour créer votre planimèt
 EVENT_REFERENCE_START = True
 EVENT_REFERENCE_DONE = False
 EVENT_PLANIMETER_MESUREMENT = False
-EVENT_INFOBOX_QUIT = False
 
 
 # VALEUR GLOBALE
@@ -58,7 +57,7 @@ REF_DENSITY = None
 
 def mouse_callback(event, x, y, flags, param):
     global EVENT_REFERENCE_START, EVENT_REFERENCE_DONE, EVENT_PLANIMETER_MESUREMENT, \
-        REF_POS, scanner_image, REF_DENSITY, EVENT_INFOBOX_QUIT
+        REF_POS, scanner_image, REF_DENSITY
 
     range_colorval = 20
 
@@ -92,11 +91,6 @@ def mouse_callback(event, x, y, flags, param):
         return None
     """
     if event == cv2.EVENT_LBUTTONDOWN:
-        EVENT_INFOBOX_QUIT = False
-        if planimeter.ROOT_INFOBOX_TKINTER is not None:
-            # print(planimeter.ROOT_INFOBOX_TKINTER.title())
-            planimeter.ROOT_INFOBOX_TKINTER.destroy()
-            planimeter.ROOT_INFOBOX_TKINTER = None
         # print(f"Mouse clicked at position: ({x}, {y})")
         # print(IMAGE_ARRAY[y][x])
         pixel_list = planimeter.surface_area(x, y, range_colorval, IMAGE_ARRAY, False)
@@ -106,12 +100,6 @@ def mouse_callback(event, x, y, flags, param):
         # print("l'aire est de :", REF_DENSITY*pixel_area, "mm²")
         print("l'aire est de :", round(REF_DENSITY*len(pixel_list)/100, 2), "cm²")
         planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
-
-
-def on_closing():
-    global EVENT_INFOBOX_QUIT
-    print("quit application")
-    EVENT_INFOBOX_QUIT = True
 
 
 # Debut code creation IMAGE
@@ -131,11 +119,4 @@ while True:
     cv2.setMouseCallback('Image', mouse_callback)
     if cv2.waitKey(10) == 27:
         break
-    # Gestion des events si user clique sur croix pour quitté application
-    # if planimeter.ROOT_INFOBOX_TKINTER and not EVENT_INFOBOX_QUIT:
-    #     planimeter.ROOT_INFOBOX_TKINTER.update()
-    #     planimeter.ROOT_INFOBOX_TKINTER.update_idletasks()
-    #     planimeter.ROOT_INFOBOX_TKINTER.protocol("WM_DELETE_WINDOW", on_closing)
-    # if EVENT_INFOBOX_QUIT:
-    #     planimeter.ROOT_INFOBOX_TKINTER.destroy()
 cv2.destroyAllWindows()

@@ -42,13 +42,24 @@ def info_from_surface(pixels_list, ref_density):
             ]
 
 
+def on_closing():
+    global ROOT_INFOBOX_TKINTER
+    print("quit application")
+    ROOT_INFOBOX_TKINTER.destroy()
+    ROOT_INFOBOX_TKINTER = None
+
+
 # display_surface_info : affiche les infos sur la geometrie
 
 
 def display_surface_info(characteristics):
     global ROOT_INFOBOX_TKINTER
+    if ROOT_INFOBOX_TKINTER is not None:
+        ROOT_INFOBOX_TKINTER.destroy()
+        ROOT_INFOBOX_TKINTER = None
     root = tk.Tk()
     root.title("Informations sur la surface")
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     frame = tk.Frame(root, padx=20, pady=10, name="infobox")
     frame.grid()
 
