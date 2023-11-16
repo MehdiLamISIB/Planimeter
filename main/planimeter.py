@@ -4,6 +4,8 @@ import cv2
 
 
 ROOT_INFOBOX_TKINTER = None
+SCREEN_X_FAV = 30
+SCREEN_Y_FAV = 30
 
 
 # recuperer les coordonées des pixels et donnes infos (aire, barycentre, min, max, ratio y/x)
@@ -42,9 +44,15 @@ def info_from_surface(pixels_list, ref_density):
             ]
 
 
+def set_past_postion():
+    global ROOT_INFOBOX_TKINTER, SCREEN_X_FAV, SCREEN_Y_FAV
+    SCREEN_X_FAV, SCREEN_Y_FAV = ROOT_INFOBOX_TKINTER.winfo_x(), ROOT_INFOBOX_TKINTER.winfo_y()
+
+
 def on_closing():
     global ROOT_INFOBOX_TKINTER
     print("quit application")
+    set_past_postion()
     ROOT_INFOBOX_TKINTER.destroy()
     ROOT_INFOBOX_TKINTER = None
 
@@ -53,15 +61,15 @@ def on_closing():
 
 
 def display_surface_info(characteristics):
-    global ROOT_INFOBOX_TKINTER
+    global ROOT_INFOBOX_TKINTER, SCREEN_X_FAV, SCREEN_Y_FAV
     if ROOT_INFOBOX_TKINTER is not None:
+        set_past_postion()
         ROOT_INFOBOX_TKINTER.destroy()
         ROOT_INFOBOX_TKINTER = None
     root = tk.Tk()
     root.title("Informations sur la surface")
     root.protocol("WM_DELETE_WINDOW", on_closing)
     frame = tk.Frame(root, padx=20, pady=10, name="infobox")
-    frame.grid()
 
     def create_label(text):
         return tk.Label(frame, text=text, font=('Arial', 12), padx=10, pady=5, anchor='w')
@@ -72,6 +80,7 @@ def display_surface_info(characteristics):
 
     frame.grid(padx=20, pady=20)
     ROOT_INFOBOX_TKINTER = root
+    root.geometry("{0}x{1}+{2}+{3}".format(300, 200, SCREEN_X_FAV, SCREEN_Y_FAV))
     root.mainloop()
 
 # Verifie les coordonnes pour pas depasser
