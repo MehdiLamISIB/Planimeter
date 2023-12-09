@@ -40,11 +40,18 @@ class Tree:
 
 
 @cuda.jit
-def test(an_array, rmin, colour, rmax):
+def test(an_array, colour, range_val):
     x, y = cuda.grid(2)
     if x < an_array.shape[0] and y < an_array.shape[1]:
-        # an_array[x, y] += 1
-        an_array[x][y] = 0
+        # an_array[x][y] = 1
+        temp_arr = an_array[x][y]
+        for i in range(len(temp_arr)):
+            if colour[i]+range_val > temp_arr[i] > colour[i]-range_val:
+                an_array[x][y] = 255
+                continue
+            else:
+                an_array[x][y] = 0
+                break
         pass
     pass
     """
@@ -79,12 +86,9 @@ def bfs_parallel_implementation():
 def init_cuda_optimisation(image_array, x_init, y_init, range_val):
     # threadsperblock = 32
     # blockspergrid = (image_array.size + (threadsperblock - 1)) // threadsperblock
-    out_array = np.empty(shape=(1, 0))
 
     data = np.copy(image_array)
     precolor = data[y_init][x_init]
-    rmin = precolor - np.array([range_val, range_val, range_val])
-    rmax = precolor + np.array([range_val, range_val, range_val])
 
     # Application de cuda sur un tableau à 2D dimension
     # INITIALISATION GENERIQUE POUR LA 2D !!!!!
@@ -94,11 +98,10 @@ def init_cuda_optimisation(image_array, x_init, y_init, range_val):
     blockspergrid_x = math.ceil(image_array.shape[0] / threadsperblock[0])
     blockspergrid_y = math.ceil(image_array.shape[1] / threadsperblock[1])
     blockspergrid = (blockspergrid_x, blockspergrid_y)
-    test[blockspergrid, threadsperblock](image_array, rmin, precolor, rmax)
+    test[blockspergrid, threadsperblock](image_array, precolor, range_val)
     # INITIALISATION GENERIQUE POUR LA 2D !!!!!
     # INITIALISATION GENERIQUE POUR LA 2D !!!!!
     # INITIALISATION GENERIQUE POUR LA 2D !!!!!
-
 
     """
     verify_condition_neighboor[blockspergrid, threadsperblock]([x_init, y_init],
@@ -124,3 +127,9 @@ print("THIS SHAPE --> ", IMAGE_ARRAY.shape[0], IMAGE_ARRAY)
 print("APRES CUDA")
 # permet de tout afficher ---> np.set_printoptions(threshold=np.inf)
 print(IMAGE_ARRAY)
+
+while True:
+    cv2.imshow('Image', IMAGE_ARRAY)
+    if cv2.waitKey(10) == 27:
+        break
+cv2.destroyAllWindows()
