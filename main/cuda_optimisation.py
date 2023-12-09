@@ -116,20 +116,29 @@ def init_cuda_optimisation(image_array, x_init, y_init, range_val):
 
 
 import cv2
+
+
+
+
 scanner_image = cv2.imread('../scan_home/100_PPP.png')
-IMAGE_ARRAY = np.array(scanner_image)
 
 
-# print("AVANT CUDA")
-# print(IMAGE_ARRAY)
-init_cuda_optimisation(IMAGE_ARRAY, 30, 50, 30)
-print("THIS SHAPE --> ", IMAGE_ARRAY.shape[0], IMAGE_ARRAY)
-print("APRES CUDA")
-# permet de tout afficher ---> np.set_printoptions(threshold=np.inf)
-print(IMAGE_ARRAY)
+def mouse_callback(event, x, y, flags, param):
+    global scanner_image
 
-while True:
-    cv2.imshow('Image', IMAGE_ARRAY)
-    if cv2.waitKey(10) == 27:
-        break
+    if event == cv2.EVENT_LBUTTONDOWN:
+        IMAGE_ARRAY = np.array(scanner_image)
+        # print("AVANT CUDA")
+        # print(IMAGE_ARRAY)
+        init_cuda_optimisation(IMAGE_ARRAY, x, y, 30)
+        print("THIS SHAPE --> ", IMAGE_ARRAY.shape[0], IMAGE_ARRAY)
+        print("APRES CUDA")
+        # permet de tout afficher ---> np.set_printoptions(threshold=np.inf)
+        print(IMAGE_ARRAY)
+        cv2.imshow('resultat', IMAGE_ARRAY)
+
+
+cv2.imshow('Image', scanner_image)
+cv2.setMouseCallback('Image', mouse_callback)
+cv2.waitKey(0)
 cv2.destroyAllWindows()
