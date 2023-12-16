@@ -81,7 +81,7 @@ def change_color_kernel(image, coordinates):
 
 
 def change_color(image_array, coordinates, show_traited_image):
-    image = image_array #cv2.imread(image_path)
+    image = np.copy(image_array) #cv2.imread(image_path)
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert image to RGB
 
     threadsperblock = (16, 16)

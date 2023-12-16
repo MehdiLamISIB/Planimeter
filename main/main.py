@@ -63,8 +63,6 @@ IMAGE_ARRAY = None
 COLOR_RANGE = 30
 # EVENEMENT SOURIS
 
-
-
 # Application principale
 
 
@@ -90,25 +88,42 @@ def main_application():
             print(f"Clicked at (x={img_x_pos}, y={img_y_pos})")
 
             if not EVENT_REFERENCE_DONE:
+
+                canvas.config(cursor="watch")
+
                 REF_DENSITY = ref.mm_area_of_pixel_unit_with_counts_know(
                     len(planimeter.surface_area(
                         img_x_pos,
                         img_y_pos,
                         COLOR_RANGE,
                         IMAGE_ARRAY,
-                        showing_result=True,
+                        showing_result=False,
                         is_using_cuda=False))
                 )
+
                 EVENT_REFERENCE_DONE = True
+
+                canvas.config(cursor="crosshair")
+
                 print("Reference calculé")
                 return None
             else:
-                pixel_list = planimeter.surface_area(img_x_pos, img_y_pos, COLOR_RANGE, IMAGE_ARRAY, False, is_using_cuda = False)
+                canvas.config(cursor="watch")
+
+                pixel_list = planimeter.surface_area(img_x_pos,
+                                                     img_y_pos,
+                                                     COLOR_RANGE,
+                                                     IMAGE_ARRAY,
+                                                     showing_result=False,
+                                                     is_using_cuda=False)
 
                 print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
                 cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, False))
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
-                planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
+                # planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
+                print(planimeter.info_from_surface(pixel_list, REF_DENSITY))
+                # C'est ici que je dois crée ma fenêtre pour montrer les infos et les mesures aussi
+                canvas.config(cursor="crosshair")
 
     # CANVAS
     # canvas.config(cursor="watch") --> permet de faire chargement
@@ -150,8 +165,11 @@ def main_application():
             img = cv2.imread(file_path)
             height, width, channels = img.shape
 
-            DX_MAX = 1600  #1280
-            DY_MAX = 1200 #720
+            # DX_MAX = 1280
+            DX_MAX = 1600
+            # DY_MAX = 720
+            DY_MAX = 1200
+
             if width > DX_MAX and height > DY_MAX:
                 coeff_x = float(DX_MAX / width)
                 coeff_y = float(DY_MAX / height)
@@ -219,8 +237,7 @@ def main_application():
 main_application()
 
 
-## ANCIEN CODE EN BAS QUE J'AVAIS FAIT
-
+# ANCIEN CODE EN BAS QUE J'AVAIS FAIT
 
 """
 def mouse_callback(event, x, y, flags, param):
