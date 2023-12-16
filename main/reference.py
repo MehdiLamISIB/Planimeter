@@ -59,7 +59,7 @@ def draw_rectangle_evenement(event, x, y, flags, param):
 # set_reference: EVENT N°1 pour meilleur lisibilité
 
 
-def set_reference(event, x, y, flags, param):
+def set_reference_opencv(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         return True
     else:

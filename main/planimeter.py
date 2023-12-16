@@ -115,11 +115,11 @@ def showfounded_area(visited, n, m):
     cv2.imshow('Area found', img_search)
 
 
-def draw_foundedarea(opencv_image, pixels_list, show_traited_image):
-    return gpu_optimisation.change_color(opencv_image, pixels_list, show_traited_image)
+def draw_foundedarea(image_array, pixels_list, show_traited_image):
+    return gpu_optimisation.change_color(image_array, pixels_list, show_traited_image)
 
 
-def surface_area(x, y, range_val, image_array, showing_result):
+def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     """
     Algorithme en BFS qui utilise la méthode "fill paint"
     :param x: positions horizontal du clic de la souris
@@ -145,70 +145,73 @@ def surface_area(x, y, range_val, image_array, showing_result):
     colmax = (255, 255, 255) if np.any(colmax >= (255, 255, 255)) else colmax
     obj = [[y, x]]
 
-    while len(obj) > 0:
-        # On recuper la nouvelle position pour notre BFS
-        coord = obj[0]
-        x = coord[0]
-        y = coord[1]
-        # Ensuite on sort de la file
-        obj.pop(0)
+    if not is_using_cuda:
+        while len(obj) > 0:
+            # On recuper la nouvelle position pour notre BFS
+            coord = obj[0]
+            x = coord[0]
+            y = coord[1]
+            # Ensuite on sort de la file
+            obj.pop(0)
 
-        move = [
-            [0, 1], [1, 0],
-            [1, -1], [-1, 1],
-            [1, 1], [-1, -1],
-            [-1, 0], [0, -1]
-                ]
-        for pos in move:
-            cond_bound = valid_coord(x + pos[0], y+pos[1], n, m)
-            cond_already_visited = vis[x + pos[0]][y + pos[1]] == 0
-            cond_colour = colour_in_range(colmin, data[x + pos[0]][y + pos[1]], colmax)
-            if cond_bound and cond_already_visited and cond_colour:
+            move = [
+                [0, 1], [1, 0],
+                [1, -1], [-1, 1],
+                [1, 1], [-1, -1],
+                [-1, 0], [0, -1]
+                    ]
+            for pos in move:
+                cond_bound = valid_coord(x + pos[0], y+pos[1], n, m)
+                cond_already_visited = vis[x + pos[0]][y + pos[1]] == 0
+                cond_colour = colour_in_range(colmin, data[x + pos[0]][y + pos[1]], colmax)
+                if cond_bound and cond_already_visited and cond_colour:
+                    # print(data[x+1][y]==precolor)
+                    obj.append([x + pos[0], y + pos[1]])
+                    visited.append([x + pos[0], y + pos[1]])
+                    vis[x + pos[0]][y + pos[1]] = 1
+            """
+            # Pixel à Haut
+            if valid_coord(x + 1, y, n, m) and vis[x + 1][y] == 0 and colour_in_range(colmin, data[x + 1][y], colmax):
                 # print(data[x+1][y]==precolor)
-                obj.append([x + pos[0], y + pos[1]])
-                visited.append([x + pos[0], y + pos[1]])
-                vis[x + pos[0]][y + pos[1]] = 1
-        """
-        # Pixel à Haut
-        if valid_coord(x + 1, y, n, m) and vis[x + 1][y] == 0 and colour_in_range(colmin, data[x + 1][y], colmax):
-            # print(data[x+1][y]==precolor)
-            obj.append([x + 1, y])
-            visited.append([x + 1, y])
-            vis[x + 1][y] = 1
-        # Pixel à bas
-        if valid_coord(x - 1, y, n, m) and vis[x - 1][y] == 0 and colour_in_range(colmin, data[x - 1][y], colmax):
-            obj.append([x - 1, y])
-            visited.append([x - 1, y])
-            vis[x - 1][y] = 1
-        # Pixel à droite
-        if valid_coord(x, y + 1, n, m) and vis[x][y + 1] == 0 and colour_in_range(colmin, data[x][y + 1], colmax):
-            obj.append([x, y + 1])
-            visited.append([x, y + 1])
-            vis[x][y + 1] = 1
-        # Pixel à gauche
-        if valid_coord(x, y - 1, n, m) and vis[x][y - 1] == 0 and colour_in_range(colmin, data[x][y - 1], colmax):
-            obj.append([x, y - 1])
-            visited.append([x, y - 1])
-            vis[x][y - 1] = 1
-
-        # TEST ajout des pixels en diagognale
-        # Pixel Gauche et bas
-        if valid_coord(x - 1, y - 1, n, m) and vis[x - 1][y - 1] == 0 and colour_in_range(colmin, data[x - 1][y - 1], colmax):
-            obj.append([x - 1, y - 1])
-            visited.append([x - 1, y - 1])
-            vis[x - 1][y - 1] = 1
-        # Pixel Gauche et haut
-        if valid_coord(x - 1, y + 1, n, m) and vis[x - 1][y + 1] == 0 and colour_in_range(colmin, data[x - 1][y + 1], colmax):
-            obj.append([x - 1, y + 1])
-            visited.append([x - 1, y + 1])
-            vis[x - 1][y + 1] = 1
-        # Pixel Droite et Haut
-        if valid_coord(x + 1, y + 1, n, m) and vis[x + 1][y + 1] == 0 and colour_in_range(colmin, data[x + 1][y + 1], colmax):
-            obj.append([x + 1, y + 1])
-            visited.append([x + 1, y + 1])
-            vis[x + 1][y + 1] = 1
-        """
-
+                obj.append([x + 1, y])
+                visited.append([x + 1, y])
+                vis[x + 1][y] = 1
+            # Pixel à bas
+            if valid_coord(x - 1, y, n, m) and vis[x - 1][y] == 0 and colour_in_range(colmin, data[x - 1][y], colmax):
+                obj.append([x - 1, y])
+                visited.append([x - 1, y])
+                vis[x - 1][y] = 1
+            # Pixel à droite
+            if valid_coord(x, y + 1, n, m) and vis[x][y + 1] == 0 and colour_in_range(colmin, data[x][y + 1], colmax):
+                obj.append([x, y + 1])
+                visited.append([x, y + 1])
+                vis[x][y + 1] = 1
+            # Pixel à gauche
+            if valid_coord(x, y - 1, n, m) and vis[x][y - 1] == 0 and colour_in_range(colmin, data[x][y - 1], colmax):
+                obj.append([x, y - 1])
+                visited.append([x, y - 1])
+                vis[x][y - 1] = 1
+    
+            # TEST ajout des pixels en diagognale
+            # Pixel Gauche et bas
+            if valid_coord(x - 1, y - 1, n, m) and vis[x - 1][y - 1] == 0 and colour_in_range(colmin, data[x - 1][y - 1], colmax):
+                obj.append([x - 1, y - 1])
+                visited.append([x - 1, y - 1])
+                vis[x - 1][y - 1] = 1
+            # Pixel Gauche et haut
+            if valid_coord(x - 1, y + 1, n, m) and vis[x - 1][y + 1] == 0 and colour_in_range(colmin, data[x - 1][y + 1], colmax):
+                obj.append([x - 1, y + 1])
+                visited.append([x - 1, y + 1])
+                vis[x - 1][y + 1] = 1
+            # Pixel Droite et Haut
+            if valid_coord(x + 1, y + 1, n, m) and vis[x + 1][y + 1] == 0 and colour_in_range(colmin, data[x + 1][y + 1], colmax):
+                obj.append([x + 1, y + 1])
+                visited.append([x + 1, y + 1])
+                vis[x + 1][y + 1] = 1
+            """
+    else:
+        # visited = gpu_optimisation.flood_fill_cuda(image_array, x, y, range_val)
+        pass
     # On affiche l'aire qui a été trouvé en remappant les pixsels parcourus
     # Dans les 2 cas on retournes les pixels
     try:

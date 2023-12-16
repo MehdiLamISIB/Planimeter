@@ -80,9 +80,9 @@ def change_color_kernel(image, coordinates):
 # change_color : appelle le kernel cuda et retourne la nouvelle image crée
 
 
-def change_color(image_path, coordinates, show_traited_image):
-    image = cv2.imread(image_path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert image to RGB
+def change_color(image_array, coordinates, show_traited_image):
+    image = image_array #cv2.imread(image_path)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert image to RGB
 
     threadsperblock = (16, 16)
     blockspergrid_x = (image.shape[0] + threadsperblock[0] - 1) // threadsperblock[0]
@@ -102,6 +102,7 @@ def change_color(image_path, coordinates, show_traited_image):
     else:
         resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
         return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
+
 
 @cuda.jit
 def verify_condition_neighboor(neighboor_array, rmin, colour, rmax, border_x, border_y, out_arr):
@@ -233,7 +234,7 @@ def init_algo_search(image_array, x_init, y_init, range_val):
 
 # CE BOUT DE CODE EN DESSOUS PERMET DE TESTER DIRECTEMENT POUR VOIR SI MA FONCTION MARCHE
 # AVANT DE L'IMPLEMENTER SUR PLANIMETER.PY
-
+"""
 import cv2
 
 
@@ -256,6 +257,7 @@ def mouse_callback(event, x, y, flags, param):
         # permet de tout afficher ---> np.set_printoptions(threshold=np.inf)
         print(image_array)
         cv2.imshow('resultat', image_array)
+"""
 
 """
 cv2.imshow('Image', scanner_image)
