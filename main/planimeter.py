@@ -53,6 +53,7 @@ def info_from_surface(pixels_list, ref_density):
                 ("ratio Hauteur/Largeur", "None")
                 ]
 
+
 def set_past_postion():
     global ROOT_INFOBOX_TKINTER, SCREEN_X_FAV, SCREEN_Y_FAV
     SCREEN_X_FAV, SCREEN_Y_FAV = ROOT_INFOBOX_TKINTER.winfo_x(), ROOT_INFOBOX_TKINTER.winfo_y()

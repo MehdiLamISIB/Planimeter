@@ -59,6 +59,8 @@ MAINWINDOW_HEIGHT = 600
 
 IMAGE_ARRAY = None
 COLOR_RANGE = 15
+
+WINDOW_SHOW_AREA_INFO = None
 # EVENEMENT SOURIS
 
 # Application principale
@@ -73,6 +75,34 @@ def main_application():
     root.resizable(False, False)
 
     # CANVAS FUNCTION AND EVENT
+
+    def show_caracteristic_area(characteristics):
+        global WINDOW_SHOW_AREA_INFO
+
+        def on_closing():
+            global WINDOW_SHOW_AREA_INFO
+            WINDOW_SHOW_AREA_INFO.destroy()
+            WINDOW_SHOW_AREA_INFO = None
+
+        def create_label(text):
+            return tk.Label(WINDOW_SHOW_AREA_INFO, text=text, font=('Arial', 12), padx=10, pady=5, anchor='w')
+
+        if WINDOW_SHOW_AREA_INFO is None:
+            WINDOW_SHOW_AREA_INFO = tk.Toplevel(root)
+            WINDOW_SHOW_AREA_INFO.title("Info about area ...")
+
+            for i, (char_name, char_value) in enumerate(characteristics):
+                label = create_label(f"{char_name}: {char_value}")
+                label.grid(row=i, column=0, sticky='w')
+            WINDOW_SHOW_AREA_INFO.geometry("300x200")
+            WINDOW_SHOW_AREA_INFO.protocol("WM_DELETE_WINDOW", on_closing)
+        else:
+            for widgets in WINDOW_SHOW_AREA_INFO.winfo_children():
+                widgets.destroy()
+
+            for i, (char_name, char_value) in enumerate(characteristics):
+                label = create_label(f"{char_name}: {char_value}")
+                label.grid(row=i, column=0, sticky='w')
 
     def change_cursor_to_set(event):
         canvas.config(cursor="plus")
@@ -151,7 +181,9 @@ def main_application():
                 cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, False))
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
                 # planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
-                print(planimeter.info_from_surface(pixel_list, REF_DENSITY))
+
+                show_caracteristic_area(planimeter.info_from_surface(pixel_list, REF_DENSITY))
+                # print(planimeter.info_from_surface(pixel_list, REF_DENSITY))
                 # C'est ici que je dois crée ma fenêtre pour montrer les infos et les mesures aussi
                 canvas.config(cursor="crosshair")
 
