@@ -74,6 +74,34 @@ def main_application():
 
     # CANVAS FUNCTION AND EVENT
 
+    def set_reference(event):
+        global EVENT_IMAGE_SET, EVENT_REFERENCE_DONE, COEFF_X, COEFF_Y, REF_DENSITY, IMAGE_ARRAY, COLOR_RANGE
+        print("hey bind ")
+        x = event.x
+        y = event.y
+
+        print(f"Clicked at (x={x}, y={y})")
+
+        if EVENT_IMAGE_SET:
+            img_x_pos = int(x*COEFF_X)
+            img_y_pos = int(y*COEFF_Y)
+            canvas.config(cursor="watch")
+            REF_DENSITY = ref.mm_area_of_pixel_unit_with_counts_know(
+                len(planimeter.surface_area(
+                    img_x_pos,
+                    img_y_pos,
+                    COLOR_RANGE,
+                    IMAGE_ARRAY,
+                    showing_result=False,
+                    is_using_cuda=False))
+            )
+
+            EVENT_REFERENCE_DONE = True
+            canvas.config(cursor="crosshair")
+            print("Reference calculé")
+        else:
+            print("besoin d'avoir une image !!!!!")
+
     def mouse_callback(event):
         global EVENT_IMAGE_SET, EVENT_REFERENCE_DONE, COEFF_X, COEFF_Y, REF_DENSITY, IMAGE_ARRAY, COLOR_RANGE
         x = event.x
@@ -85,7 +113,7 @@ def main_application():
             img_y_pos = int(y*COEFF_Y)
             print(f"Clicked at (x={img_x_pos}, y={img_y_pos})")
             if not EVENT_REFERENCE_DONE:
-
+                """
                 canvas.config(cursor="watch")
 
                 REF_DENSITY = ref.mm_area_of_pixel_unit_with_counts_know(
@@ -103,7 +131,9 @@ def main_application():
                 canvas.config(cursor="crosshair")
 
                 print("Reference calculé")
-                return None
+                """
+                print("la reference n'as pas encore ete mis ")
+                # return None
             else:
                 canvas.config(cursor="watch")
 
@@ -125,12 +155,10 @@ def main_application():
     # CANVAS
     # canvas.config(cursor="watch") --> permet de faire chargement
     canvas = tk.Canvas(root, width=600, height=600, bg="black")
-    canvas.bind("<Button-1>", mouse_callback)
     canvas.config(cursor="crosshair")
+    canvas.bind('<Button-1>', mouse_callback)
+    canvas.bind('<Button-3>', set_reference)
     canvas.pack()
-
-    def set_reference():
-        pass
 
     def credit_app():
         msg = "Application created by Mehdi Lamrabet\n Planimeter - 2023©"
@@ -230,7 +258,6 @@ def main_application():
 
     app_menu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Application", menu=app_menu)
-    app_menu.add_command(label="Set reference", command=set_reference)
     app_menu.add_command(label="Close", command=close_app)
     app_menu.add_command(label="Credit", command=credit_app)
 
