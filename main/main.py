@@ -76,12 +76,11 @@ def main_application():
 
     def set_reference(event):
         global EVENT_IMAGE_SET, EVENT_REFERENCE_DONE, COEFF_X, COEFF_Y, REF_DENSITY, IMAGE_ARRAY, COLOR_RANGE
-        print("hey bind ")
+
         x = event.x
         y = event.y
 
         print(f"Clicked at (x={x}, y={y})")
-
         if EVENT_IMAGE_SET:
             img_x_pos = int(x*COEFF_X)
             img_y_pos = int(y*COEFF_Y)
