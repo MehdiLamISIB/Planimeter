@@ -172,46 +172,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     obj.append([x + pos[0], y + pos[1]])
                     visited.append([x + pos[0], y + pos[1]])
                     vis[x + pos[0]][y + pos[1]] = 1
-            """
-            # Pixel à Haut
-            if valid_coord(x + 1, y, n, m) and vis[x + 1][y] == 0 and colour_in_range(colmin, data[x + 1][y], colmax):
-                # print(data[x+1][y]==precolor)
-                obj.append([x + 1, y])
-                visited.append([x + 1, y])
-                vis[x + 1][y] = 1
-            # Pixel à bas
-            if valid_coord(x - 1, y, n, m) and vis[x - 1][y] == 0 and colour_in_range(colmin, data[x - 1][y], colmax):
-                obj.append([x - 1, y])
-                visited.append([x - 1, y])
-                vis[x - 1][y] = 1
-            # Pixel à droite
-            if valid_coord(x, y + 1, n, m) and vis[x][y + 1] == 0 and colour_in_range(colmin, data[x][y + 1], colmax):
-                obj.append([x, y + 1])
-                visited.append([x, y + 1])
-                vis[x][y + 1] = 1
-            # Pixel à gauche
-            if valid_coord(x, y - 1, n, m) and vis[x][y - 1] == 0 and colour_in_range(colmin, data[x][y - 1], colmax):
-                obj.append([x, y - 1])
-                visited.append([x, y - 1])
-                vis[x][y - 1] = 1
-    
-            # TEST ajout des pixels en diagognale
-            # Pixel Gauche et bas
-            if valid_coord(x - 1, y - 1, n, m) and vis[x - 1][y - 1] == 0 and colour_in_range(colmin, data[x - 1][y - 1], colmax):
-                obj.append([x - 1, y - 1])
-                visited.append([x - 1, y - 1])
-                vis[x - 1][y - 1] = 1
-            # Pixel Gauche et haut
-            if valid_coord(x - 1, y + 1, n, m) and vis[x - 1][y + 1] == 0 and colour_in_range(colmin, data[x - 1][y + 1], colmax):
-                obj.append([x - 1, y + 1])
-                visited.append([x - 1, y + 1])
-                vis[x - 1][y + 1] = 1
-            # Pixel Droite et Haut
-            if valid_coord(x + 1, y + 1, n, m) and vis[x + 1][y + 1] == 0 and colour_in_range(colmin, data[x + 1][y + 1], colmax):
-                obj.append([x + 1, y + 1])
-                visited.append([x + 1, y + 1])
-                vis[x + 1][y + 1] = 1
-            """
     else:
         # visited = gpu_optimisation.flood_fill_cuda(image_array, x, y, range_val)
         pass
