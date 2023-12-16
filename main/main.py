@@ -161,7 +161,7 @@ def main_application():
     canvas.config(cursor="crosshair")
     canvas.bind('<Button-1>', mouse_callback)
     # canvas.bind('<Button-3>', change_cursor_to_set)
-    canvas.bind('<ButtonRelease-3>', set_reference)
+    canvas.bind('<DoubleButton-1>', set_reference)
     canvas.pack()
 
     def credit_app():
