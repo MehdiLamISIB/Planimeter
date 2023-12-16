@@ -74,6 +74,9 @@ def main_application():
 
     # CANVAS FUNCTION AND EVENT
 
+    def change_cursor_to_set(event):
+        canvas.config(cursor="plus")
+
     def set_reference(event):
         global EVENT_IMAGE_SET, EVENT_REFERENCE_DONE, COEFF_X, COEFF_Y, REF_DENSITY, IMAGE_ARRAY, COLOR_RANGE
 
@@ -99,6 +102,7 @@ def main_application():
             canvas.config(cursor="crosshair")
             print("Reference calculé")
         else:
+            canvas.config(cursor="crosshair")
             print("besoin d'avoir une image !!!!!")
 
     def mouse_callback(event):
@@ -156,7 +160,8 @@ def main_application():
     canvas = tk.Canvas(root, width=600, height=600, bg="black")
     canvas.config(cursor="crosshair")
     canvas.bind('<Button-1>', mouse_callback)
-    canvas.bind('<Button-3>', set_reference)
+    # canvas.bind('<Button-3>', change_cursor_to_set)
+    canvas.bind('<ButtonRelease-3>', set_reference)
     canvas.pack()
 
     def credit_app():
