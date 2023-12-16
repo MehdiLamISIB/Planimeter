@@ -30,19 +30,28 @@ def info_from_surface(pixels_list, ref_density):
             y_min = y
         if y > y_max:
             y_max = y
-
-    area = str(round(ref_density*count/100, 2))+" cm²"
-    barycentre = "("+str(round(c_x/count, 2))+";"+str(round(c_y/count, 2))+")"
-    min_coord = "("+str(x_min)+";"+str(y_min)+")"
-    max_coord = "("+str(x_max)+";"+str(y_max)+")"
-    ratio = str(round((y_max-y_min)/(x_max-x_min), 2))
-    return [("Aire", area),
-            ("Barycentre", barycentre),
-            ("Min x/y", min_coord),
-            ("Max x/y", max_coord),
-            ("ratio Hauteur/Largeur", ratio)
-            ]
-
+    try:
+        area = str(round(ref_density*count/100, 2))+" cm²"
+        barycentre = "("+str(round(c_x/count, 2))+";"+str(round(c_y/count, 2))+")"
+        min_coord = "("+str(x_min)+";"+str(y_min)+")"
+        max_coord = "("+str(x_max)+";"+str(y_max)+")"
+        ratio = str(round((y_max-y_min)/(x_max-x_min), 2))
+        return [("Aire", area),
+                ("Barycentre", barycentre),
+                ("Min x/y", min_coord),
+                ("Max x/y", max_coord),
+                ("ratio Hauteur/Largeur", ratio)
+                ]
+    except Exception as e:
+        print("\n-----"*2)
+        print("Error", e)
+        print("-----\n"*2)
+        return [("Aire", "None"),
+                ("Barycentre", "None"),
+                ("Min x/y", "None"),
+                ("Max x/y", "None"),
+                ("ratio Hauteur/Largeur", "None")
+                ]
 
 def set_past_postion():
     global ROOT_INFOBOX_TKINTER, SCREEN_X_FAV, SCREEN_Y_FAV
@@ -157,8 +166,8 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
 
             move = [
                 [0, 1], [1, 0],
-                [1, -1], [-1, 1],
-                [1, 1], [-1, -1],
+                # [1, -1], [-1, 1],
+                # [1, 1], [-1, -1],
                 [-1, 0], [0, -1]
                     ]
             for pos in move:
