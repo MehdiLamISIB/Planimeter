@@ -41,14 +41,12 @@ Voici une approche générale que vous pouvez suivre pour créer votre planimèt
 
 # EVENEMENT SUIVIES
 
-
-EVENT_REFERENCE_START = True
+EVENT_REFERENCE_START = False
 EVENT_REFERENCE_DONE = False
 EVENT_PLANIMETER_MESUREMENT = False
 EVENT_IMAGE_SET = False
 
 # VALEUR GLOBALE
-
 
 REF_POS = [0, 0, 0, 0]
 REF_DENSITY = None
@@ -86,7 +84,6 @@ def main_application():
             img_x_pos = int(x*COEFF_X)
             img_y_pos = int(y*COEFF_Y)
             print(f"Clicked at (x={img_x_pos}, y={img_y_pos})")
-
             if not EVENT_REFERENCE_DONE:
 
                 canvas.config(cursor="watch")
@@ -131,6 +128,9 @@ def main_application():
     canvas.bind("<Button-1>", mouse_callback)
     canvas.config(cursor="crosshair")
     canvas.pack()
+
+    def set_reference():
+        pass
 
     def credit_app():
         msg = "Application created by Mehdi Lamrabet\n Planimeter - 2023©"
@@ -230,8 +230,9 @@ def main_application():
 
     app_menu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Application", menu=app_menu)
-    app_menu.add_command(label="Credit", command=credit_app)
+    app_menu.add_command(label="Set reference", command=set_reference)
     app_menu.add_command(label="Close", command=close_app)
+    app_menu.add_command(label="Credit", command=credit_app)
 
     root.mainloop()
 
