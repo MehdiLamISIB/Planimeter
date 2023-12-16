@@ -127,6 +127,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     :param range_val: ecart de couleur étant accepté comme compris dans la zone de contour
     :param image_array: table 2D des pixels
     :param showing_result: permet de debug et verifier le resultat
+    :param is_using_cuda: permet de choisir l'optimisation gpu avec cuda
     :return: la liste des pixels visités
     """
     n = image_array.shape[1] - 1
@@ -162,9 +163,11 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     ]
             for pos in move:
                 cond_bound = valid_coord(x + pos[0], y+pos[1], n, m)
+                if cond_bound:
+                    continue
                 cond_already_visited = vis[x + pos[0]][y + pos[1]] == 0
                 cond_colour = colour_in_range(colmin, data[x + pos[0]][y + pos[1]], colmax)
-                if cond_bound and cond_already_visited and cond_colour:
+                if cond_already_visited and cond_colour:
                     # print(data[x+1][y]==precolor)
                     obj.append([x + pos[0], y + pos[1]])
                     visited.append([x + pos[0], y + pos[1]])
