@@ -152,8 +152,10 @@ def main_application():
         root.quit()
 
     def open_image():
-        global COEFF_X, COEFF_Y
-
+        global COEFF_X, COEFF_Y, EVENT_REFERENCE_DONE
+        if EVENT_REFERENCE_DONE:
+            # Permet de remttre à zéro à chaque nouvelle image
+            EVENT_REFERENCE_DONE = False
         file_path = filedialog.askopenfilename(
             title="Select your picture",
             filetypes=(("Image files", "*.jpg;*.jpeg;*.png"),)
