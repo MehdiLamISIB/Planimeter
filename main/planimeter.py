@@ -163,7 +163,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     ]
             for pos in move:
                 cond_bound = valid_coord(x + pos[0], y+pos[1], n, m)
-                if cond_bound:
+                if not cond_bound:
                     continue
                 cond_already_visited = vis[x + pos[0]][y + pos[1]] == 0
                 cond_colour = colour_in_range(colmin, data[x + pos[0]][y + pos[1]], colmax)
