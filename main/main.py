@@ -74,6 +74,11 @@ def main_application():
     root.geometry("600x600")
     root.resizable(False, False)
 
+    # TKINTER NATIVE VARIABLE
+
+    TOOGLE_CUDA_CHOOSE = tk.BooleanVar()
+    TOOGLE_CUDA_CHOOSE.set(False)
+
     # CANVAS FUNCTION AND EVENT
 
     def show_caracteristic_area(characteristics):
@@ -140,6 +145,7 @@ def main_application():
         x = event.x
         y = event.y
         print(f"Clicked at (x={x}, y={y})")
+        print("Is using CUDA --> ", TOOGLE_CUDA_CHOOSE.get())
         # Si une image est affiché, on peut lancer l'algo
         if EVENT_IMAGE_SET:
             img_x_pos = int(x*COEFF_X)
@@ -175,7 +181,7 @@ def main_application():
                                                      COLOR_RANGE,
                                                      IMAGE_ARRAY,
                                                      showing_result=False,
-                                                     is_using_cuda=False)
+                                                     is_using_cuda=TOOGLE_CUDA_CHOOSE.get())
 
                 print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
                 cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, False))
@@ -192,8 +198,9 @@ def main_application():
     canvas = tk.Canvas(root, width=600, height=600, bg="black")
     canvas.config(cursor="crosshair")
     canvas.bind('<Button-1>', mouse_callback)
+    # canvas.bind('<Double-Button-1>', set_reference)
+    canvas.bind('<Button-3>', set_reference)
     # canvas.bind('<Button-3>', change_cursor_to_set)
-    canvas.bind('<Double-Button-1>', set_reference)
     canvas.pack()
 
     def credit_app():
@@ -294,6 +301,8 @@ def main_application():
 
     app_menu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Application", menu=app_menu)
+    app_menu.add_checkbutton(label="cuda optimisation", variable=TOOGLE_CUDA_CHOOSE, onvalue=True, offvalue=False)
+
     app_menu.add_command(label="Close", command=close_app)
     app_menu.add_command(label="Credit", command=credit_app)
 

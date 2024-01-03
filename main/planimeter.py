@@ -183,6 +183,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     visited.append([x + pos[0], y + pos[1]])
                     vis[x + pos[0]][y + pos[1]] = 1
     else:
+        # gpu_optimisation.run_parallel_bfs(data, vis, obj, visited, n, m, colmin, colmax)
         # visited = gpu_optimisation.flood_fill_cuda(image_array, x, y, range_val)
         pass
     # On affiche l'aire qui a été trouvé en remappant les pixsels parcourus
