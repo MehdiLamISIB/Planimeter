@@ -140,9 +140,6 @@ def execute_move(image_array, colmin, colmax, x, y, n, m):
     return new_move
 
 
-
-
-
 def valid_coord(x, y, n, m):
     if x < 0 or y < 0:
         return False
@@ -187,24 +184,3 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
                 vis[new_x][new_y] = 1
 
     return visited, vis
-
-
-# TEST
-# TEST
-# TEST
-
-
-def flood_fill(image, x, y, target_color, replacement_color):
-    if image[y, x] != target_color:
-        return
-
-    image[y, x] = replacement_color
-
-    if x > 0:
-        flood_fill(image, x - 1, y, target_color, replacement_color)
-    if x < image.shape[1] - 1:
-        flood_fill(image, x + 1, y, target_color, replacement_color)
-    if y > 0:
-        flood_fill(image, x, y - 1, target_color, replacement_color)
-    if y < image.shape[0] - 1:
-        flood_fill(image, x, y + 1, target_color, replacement_color)
