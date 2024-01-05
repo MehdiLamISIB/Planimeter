@@ -2,6 +2,7 @@ import tkinter as tk
 import numpy as np
 import cv2
 import cuda_optimisation as gpu_optimisation
+from collections import deque
 
 ROOT_INFOBOX_TKINTER = None
 SCREEN_X_FAV = 30
@@ -146,7 +147,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     visited = []
     vis = [[0 for _ in range(n)] for _ in range(m)]
     # print(n, m, x, y)
-    vis[y][x] = 1
+    vis[x][y] = 1
     visited.append([y, x])
     data = np.copy(image_array)
 
@@ -183,9 +184,24 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     visited.append([x + pos[0], y + pos[1]])
                     vis[x + pos[0]][y + pos[1]] = 1
     else:
-        # gpu_optimisation.run_parallel_bfs(data, vis, obj, visited, n, m, colmin, colmax)
-        # visited = gpu_optimisation.flood_fill_cuda(image_array, x, y, range_val)
-        pass
+        obj_array = np.array(obj).reshape((len(obj), 2))
+        visited_array = np.array(visited).reshape((len(visited), 2))
+        vis_array = np.array(vis).reshape(n, m)
+        visited, vis = gpu_optimisation.bfs_jit_parallell(
+            obj_array,
+            visited_array,
+            vis_array,
+            colmax,
+            colmin,
+            data,
+            n,
+            m)
+
+
+
+        # visited = gpu_optimisation.bfs_cuda_jit(image_array, colmin, colmax, visited, vis, x, y, n, m)
+        # visited = gpu_optimisation.calculate_area(image_array, x, y)
+
     # On affiche l'aire qui a été trouvé en remappant les pixsels parcourus
     # Dans les 2 cas on retournes les pixels
     try:

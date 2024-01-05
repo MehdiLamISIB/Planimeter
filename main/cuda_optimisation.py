@@ -1,7 +1,10 @@
 from numba import cuda
+from numba import jit
 import numpy as np
 import math
 import cv2
+
+STATIC_CALL_INCREMENT = 0
 
 """
 Pour ce code, je vais devoir :
@@ -53,35 +56,155 @@ def change_color(image_array, coordinates, show_traited_image):
 
 
 @cuda.jit
-def check_neighboor_cuda(data, vis, visited, colmin, colmax):
-    i, j = cuda.grid(2)
-    if i < visited.shape[0] and j < visited.shape[1]:
-        pass
+def count_pixels_kernel(image_array, colmin, colmax, visited, vis, x, y, n, m):
+    tid_x = cuda.threadIdx.x + cuda.blockIdx.x * cuda.blockDim.x
+    tid_y = cuda.threadIdx.y + cuda.blockIdx.y * cuda.blockDim.y
+
+    if tid_x < n and tid_y < m:
+        r, g, b = image_array[tid_y, tid_x]  # Get RGB values of pixel
+        min_r, min_g, min_b = colmin         # Unpack minimum RGB values
+        max_r, max_g, max_b = colmax         # Unpack maximum RGB values
+
+        if min_r <= r <= max_r and min_g <= g <= max_g and min_b <= b <= max_b and not vis[tid_y, tid_x]:
+            visited[tid_y, tid_x] = 1
+            vis[tid_y, tid_x] = 1
 
 
-def bfs_cuda_jit(data, vis, obj, visited, colmin, colmax):
-    past_visited = np.array([])
+def bfs_cuda_jit(image_array, colmin, colmax, visited, vis, x, y, n, m):
+    threadsperblock = (16, 16)
+    blockspergrid_x = int(np.ceil(n / threadsperblock[0]))
+    blockspergrid_y = int(np.ceil(m / threadsperblock[1]))
+    blockspergrid = (blockspergrid_x, blockspergrid_y)
 
-    next_move = 0
-    # chaque mouvement est enregistre sur un byte, on change chaque bit pour définir les positions possible
-    possible_move = np.copy([0]*visited)
-    while len(past_visited) != next_move:
-        past_visited = np.copy(visited)
+    d_visited = cuda.to_device(visited)
+    d_vis = cuda.to_device(vis)
+    d_image_array = cuda.to_device(image_array)
+    colmin = np.array(colmin, dtype=np.int32)
+    colmax = np.array(colmax, dtype=np.int32)
 
-        # transfer donnée au gpu
-        d_data = cuda.to_device(data)
-        d_vis = cuda.to_device(vis)
-        d_obj = cuda.to_device(obj)
-        d_visited = cuda.to_device(visited)
+    count_pixels_kernel[blockspergrid, threadsperblock](
+        d_image_array, colmin, colmax, d_visited, d_vis, x, y, n, m
+    )
 
-        # on va modifier cette table pour chaque valeur de past_visited
+    visited = d_visited.copy_to_host()
+    vis = d_vis.copy_to_host()
+    cuda.synchronize()
 
-        # Define CUDA grid and block dimensions
-        threadsperblock = (16, 16)  # Choose appropriate block size
-        blockspergrid_x = (past_visited.shape[0] + threadsperblock[0] - 1) // threadsperblock[0]
-        blockspergrid_y = (past_visited.shape[1] + threadsperblock[1] - 1) // threadsperblock[1]
-        blockspergrid = (blockspergrid_x, blockspergrid_y)
-        check_neighboor_cuda[blockspergrid, threadsperblock](
-            d_data, d_vis, d_obj, d_visited, colmin, colmax
-        )
+    return visited
 
+
+@cuda.jit
+def for_each_move(image_array, colmin, colmax, move, move_possible, x, y, n, m):
+    tid = cuda.grid(1)
+    if tid < 7:
+        move[tid] += y
+        move[tid+1] += x
+        y_pos = move[tid]
+        x_pos = move[tid]
+        if 0 < y_pos < m and 0 < x_pos < n:
+            r, g, b = image_array[y_pos][x_pos]  # Get RGB values of pixel
+            min_r, min_g, min_b = colmin         # Unpack minimum RGB values
+            max_r, max_g, max_b = colmax         # Unpack maximum RGB values
+
+            if min_r <= r <= max_r and min_g <= g <= max_g and min_b <= b <= max_b:
+                move_possible[tid+1] = True
+
+
+def execute_move(image_array, colmin, colmax, x, y, n, m):
+    global STATIC_CALL_INCREMENT
+    print("LE CALLL EST DE ---> ",STATIC_CALL_INCREMENT)
+    STATIC_CALL_INCREMENT+=1
+    image_array = np.array(image_array)
+    move = np.asarray([
+                0, 1,
+                1, 0,
+                -1, 0,
+                0, -1
+                ], dtype=np.int64)
+    d_move = cuda.to_device(move)
+    move_possible = np.array([False, False, False, False])
+    nthreads = 8
+    nblocks = (len(move) // nthreads) + 1
+
+    colmin = np.array(colmin, dtype=np.int64)
+    colmax = np.array(colmax, dtype=np.int64)
+
+    for_each_move[nblocks, nthreads](
+        image_array, colmin, colmax, d_move, move_possible, x, y, n, m
+    )
+
+    new_move = []
+    for i in range(len(move_possible)):
+        if move_possible[i]:
+            new_move.append([move[i+1]+x, move[i]+y])
+    return new_move
+
+
+
+
+
+def valid_coord(x, y, n, m):
+    if x < 0 or y < 0:
+        return False
+    if y >= n or x >= m:
+        return False
+    else:
+        return True
+
+
+def colour_in_range(rmin, colour, rmax): return np.all(rmin <= colour) and np.all(colour <= rmax)
+
+@jit(nopython=True)
+def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
+    moves = [
+        [0, 1], [1, 0],
+        [-1, 0], [0, -1]
+    ]
+
+    while obj.shape[0] > 0:
+        coord = obj[0]
+        x, y = coord[0], coord[1]
+
+        obj = obj[1:]  # Retirer le premier élément de obj
+
+        for pos in moves:
+            new_x, new_y = x + pos[0], y + pos[1]
+            if new_x < 0 or new_y < 0 or new_x >= m or new_y >= n:
+                continue
+
+            cond_already_visited = vis[new_x][new_y] == 0
+
+            r, g, b = data[new_x][new_y]
+            min_r, min_g, min_b = colmin
+            max_r, max_g, max_b = colmax
+
+            if not (min_r <= r <= max_r and min_g <= g <= max_g and min_b <= b <= max_b):
+                continue
+
+            if cond_already_visited:
+                obj = np.concatenate((obj, np.array([[new_x, new_y]], dtype=np.int32)), axis=0)
+                visited = np.concatenate((visited, np.array([[new_x, new_y]], dtype=np.int32)), axis=0)
+                vis[new_x][new_y] = 1
+
+    return visited, vis
+
+
+# TEST
+# TEST
+# TEST
+
+
+def flood_fill(image, x, y, target_color, replacement_color):
+    if image[y, x] != target_color:
+        return
+
+    image[y, x] = replacement_color
+
+    if x > 0:
+        flood_fill(image, x - 1, y, target_color, replacement_color)
+    if x < image.shape[1] - 1:
+        flood_fill(image, x + 1, y, target_color, replacement_color)
+    if y > 0:
+        flood_fill(image, x, y - 1, target_color, replacement_color)
+    if y < image.shape[0] - 1:
+        flood_fill(image, x, y + 1, target_color, replacement_color)
