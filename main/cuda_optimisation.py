@@ -1,7 +1,6 @@
 from numba import cuda
 from numba import jit
 import numpy as np
-import math
 import cv2
 
 STATIC_CALL_INCREMENT = 0
@@ -139,17 +138,6 @@ def execute_move(image_array, colmin, colmax, x, y, n, m):
             new_move.append([move[i+1]+x, move[i]+y])
     return new_move
 
-
-def valid_coord(x, y, n, m):
-    if x < 0 or y < 0:
-        return False
-    if y >= n or x >= m:
-        return False
-    else:
-        return True
-
-
-def colour_in_range(rmin, colour, rmax): return np.all(rmin <= colour) and np.all(colour <= rmax)
 
 @jit(nopython=True)
 def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):

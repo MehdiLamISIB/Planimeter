@@ -3,3 +3,4 @@
 # 💻 Keybind
 ### ▶️ Right click : select shape
 ### ▶️ Double right click : select reference
+### ▶️ Choose CUDA optimization in Application menu
