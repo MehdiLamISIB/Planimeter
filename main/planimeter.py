@@ -147,7 +147,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     visited = []
     vis = [[0 for _ in range(n)] for _ in range(m)]
     # print(n, m, x, y)
-    vis[x][y] = 1
+    # vis[x][y] = 1
     visited.append([y, x])
     data = np.copy(image_array)
 
@@ -158,6 +158,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     obj = [[y, x]]
 
     if not is_using_cuda:
+        """
         while len(obj) > 0:
             # On recuper la nouvelle position pour notre BFS
             coord = obj[0]
@@ -183,7 +184,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     obj.append([x + pos[0], y + pos[1]])
                     visited.append([x + pos[0], y + pos[1]])
                     vis[x + pos[0]][y + pos[1]] = 1
-    else:
+        """
         obj_array = np.array(obj).reshape((len(obj), 2))
         visited_array = np.array(visited).reshape((len(visited), 2))
         vis_array = np.array(vis).reshape(n, m)
@@ -191,6 +192,21 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             obj_array,
             visited_array,
             vis_array,
+            colmax,
+            colmin,
+            data,
+            n,
+            m)
+    else:
+        obj_array = np.array(obj).reshape((len(obj), 2))
+        visited_array = np.array([[-1, -1] for _ in range(n*m)])
+        visited_array = visited_array.reshape((len(visited_array), 2))
+        vis_array = np.array(vis).reshape(n, m)
+
+        visited, vis = gpu_optimisation.cuda_bfs_jit(
+            obj,
+            visited_array,
+            vis,
             colmax,
             colmin,
             data,

@@ -183,7 +183,7 @@ def main_application():
                                                      showing_result=False,
                                                      is_using_cuda=TOOGLE_CUDA_CHOOSE.get())
 
-                print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
+                # print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
                 cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, False))
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
                 # planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))

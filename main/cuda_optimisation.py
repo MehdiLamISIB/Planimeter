@@ -139,6 +139,9 @@ def execute_move(image_array, colmin, colmax, x, y, n, m):
     return new_move
 
 
+# @jit --> permet d'accelerer le code dans le CPU
+# a utiliser quand on a pas idée du nombre de thread à distribuer (fonction avec tableau qui change)
+
 @jit(nopython=True)
 def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
     moves = [
@@ -170,5 +173,87 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
                 obj = np.concatenate((obj, np.array([[new_x, new_y]], dtype=np.int32)), axis=0)
                 visited = np.concatenate((visited, np.array([[new_x, new_y]], dtype=np.int32)), axis=0)
                 vis[new_x][new_y] = 1
+
+    return visited, vis
+
+
+@cuda.jit
+def cuda_bfs_parallel(obj, visited, vis, colmax, colmin, data, n, m, moves, x, y):
+    temp_obj = cuda.local.array((1024, 2), dtype=np.int64)
+
+    while True:
+        done = True
+
+        for i in range(2):
+            x, y = x,y
+            temp_idx = 0
+
+            for pos in moves:
+                new_x, new_y = x + pos[0], y + pos[1]
+                if new_x < 0 or new_y < 0 or new_x >= m or new_y >= n:
+                    continue
+
+                cond_already_visited = vis[new_x][new_y] == 0
+
+                r, g, b = data[new_x][new_y]
+                min_r, min_g, min_b = colmin
+                max_r, max_g, max_b = colmax
+
+                cond_color = (
+                    (min_r <= r <= max_r) and
+                    (min_g <= g <= max_g) and
+                    (min_b <= b <= max_b)
+                )
+
+                if not cond_color:
+                    continue
+
+                if cond_already_visited:
+                    temp_obj[temp_idx, 0] = new_x
+                    temp_obj[temp_idx, 1] = new_y
+                    vis[new_x][new_y] = 1
+                    done = False
+                    temp_idx += 1
+
+            for j in range(temp_idx):
+                obj[obj.shape[0] + j, 0] = temp_obj[j, 0]
+                obj[obj.shape[0] + j, 1] = temp_obj[j, 1]
+
+        # Réduire les threads actifs à ceux qui ont du travail restant
+        active_threads = cuda.syncthreads_count(1 if not done else 0)
+        if active_threads == 0:
+            break
+
+
+def cuda_bfs_jit(obj, visited, vis, colmax, colmin, data, n, m):
+
+    threadsperblock = (16, 16)
+    blockspergrid_x = int(np.ceil(n / threadsperblock[0]))
+    blockspergrid_y = int(np.ceil(m / threadsperblock[1]))
+    blockspergrid = (blockspergrid_x, blockspergrid_y)
+
+    moves = [
+        [0, 1],
+        [1, 0],
+        [-1, 0],
+        [0, -1]
+    ]
+    moves = np.array(moves, dtype=np.int64).reshape((4, 2))
+    d_visited = cuda.to_device(visited)
+    d_vis = cuda.to_device(vis)
+    d_obj = cuda.to_device(obj)
+    d_data = cuda.to_device(data)
+    d_moves = cuda.to_device(moves)
+    cuda_bfs_parallel[blockspergrid, threadsperblock](
+        d_obj, d_visited, d_vis, colmax, colmin, d_data, n, m, d_moves, obj[0][0], obj[0][1]
+    )
+
+    cuda.synchronize()
+
+    visited = d_visited.copy_to_host()
+    vis = d_vis.copy_to_host()
+    # Je dois ensuite supprimer les éléments qui sont [-1,-1]
+    indices_to_remove = np.all(visited == [-1, -1], axis=1)
+    new_visited = visited[~indices_to_remove]
 
     return visited, vis
