@@ -206,22 +206,6 @@ def color_diff(color1, color2):
 
 # modified and took from PILLOW open source library
 def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thresh=0):
-    """
-    (experimental) Fills a bounded region with a given color.
-
-    :param image: Target image.
-    :param xy: Seed position (a 2-item coordinate tuple). See
-        :ref:`coordinate-system`.
-    :param value: Fill color.
-    :param border: Optional border value.  If given, the region consists of
-        pixels with a color different from the border color.  If not given,
-        the region consists of pixels having the same color as the seed
-        pixel.
-    :param thresh: Optional threshold value which specifies a maximum
-        tolerable difference of a pixel value from the 'background' in
-        order for it to be replaced. Useful for filling regions of
-        non-homogeneous, but similar, colors.
-    """
     pixel = np.copy(image)
     x, y = xy
 
