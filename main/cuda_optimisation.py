@@ -1,7 +1,9 @@
-from numba import cuda
+from numba import cuda, int32
 from numba import jit
+from numba import njit
 import numpy as np
 import cv2
+
 
 STATIC_CALL_INCREMENT = 0
 
@@ -53,7 +55,7 @@ def change_color(image_array, coordinates, show_traited_image):
         resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
         return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
 
-
+"""
 @cuda.jit
 def count_pixels_kernel(image_array, colmin, colmax, visited, vis, x, y, n, m):
     tid_x = cuda.threadIdx.x + cuda.blockIdx.x * cuda.blockDim.x
@@ -90,8 +92,10 @@ def bfs_cuda_jit(image_array, colmin, colmax, visited, vis, x, y, n, m):
     cuda.synchronize()
 
     return visited
+"""
 
 
+"""
 @cuda.jit
 def for_each_move(image_array, colmin, colmax, move, move_possible, x, y, n, m):
     tid = cuda.grid(1)
@@ -137,17 +141,23 @@ def execute_move(image_array, colmin, colmax, x, y, n, m):
         if move_possible[i]:
             new_move.append([move[i+1]+x, move[i]+y])
     return new_move
+"""
 
 
 # @jit --> permet d'accelerer le code dans le CPU
 # a utiliser quand on a pas idée du nombre de thread à distribuer (fonction avec tableau qui change)
 
-@jit(nopython=True)
+# @jit(nopython=True, cache=True)
+
+#@jit(nopython=True, cache=True)
+
+
+@njit(cache=True)
 def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
-    moves = [
+    moves = np.array([
         [0, 1], [1, 0],
         [-1, 0], [0, -1]
-    ]
+    ])
 
     while obj.shape[0] > 0:
         coord = obj[0]
@@ -177,83 +187,143 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
     return visited, vis
 
 
+#@jit(nopython=True, cache=True)
+
+
+@njit(cache=True)
+def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
+
+    def inside(x, y, colmax, colmin, data, n, m, vis):
+        new_x, new_y = x, y
+        if new_x < 0 or new_y < 0 or new_x >= m or new_y >= n:
+            return False
+
+        cond_already_visited = vis[new_y][new_x] == 0
+
+        r, g, b = data[new_y][new_x]
+        min_r, min_g, min_b = colmin
+        max_r, max_g, max_b = colmax
+
+        if not (min_r <= r <= max_r and min_g <= g <= max_g and min_b <= b <= max_b):
+            return False
+
+        if cond_already_visited:
+            return True
+        else:
+            return False
+        pass
+
+    # COMMENCEMENT ALGORITHME
+    if not inside(x, y, colmax, colmin, data, n, m, vis):
+        return visited, vis
+    # On commence la on peut plus remplir pour regler le soucis
+    """
+    while inside(x, y, colmax, colmin, data, n, m, vis):
+        x = x - 1
+    x = x+1
+    """
+
+    obj = np.concatenate((
+        obj,
+        np.array([[x, x, y, 1]], dtype=np.int32)),
+        axis=0)
+
+    if y - 1 > 0:
+        obj = np.concatenate((
+            obj,
+            np.array([[x, x, y - 1, -1]], dtype=np.int32)),
+            axis=0)
+
+    while obj.shape[0] > 0:
+        coord = obj[0]
+        x1, x2, y, dy = coord[0], coord[1], coord[2], coord[3]
+        x = x1
+        obj = obj[1:]
+
+        if inside(x, y, colmax, colmin, data, n, m, vis):
+            while inside(x - 1, y, colmax, colmin, data, n, m, vis):
+                # set_pixel(x - 1, y, visited, vis, data, n, m)
+                # visited = np.concatenate((visited, np.array([[x1-1, y]], dtype=np.int32)), axis=0)
+                visited = np.concatenate((visited, np.array([[y, x-1]], dtype=np.int32)), axis=0)
+                vis[y, x-1] = 1
+
+                x = x - 1
+            if x < x1:
+                obj = np.concatenate((
+                    obj,
+                    np.array([[x, x1 - 1, y - dy, -dy]], dtype=np.int32)),
+                    axis=0)
+
+        while x1 <= x2:
+            while inside(x1, y, colmax, colmin, data, n, m, vis):
+                # set_pixel(x1, y, visited, vis, data, n, m)
+                # visited = np.concatenate((visited, np.array([[x1, y]], dtype=np.int32)), axis=0)
+                visited = np.concatenate((visited, np.array([[y, x1]], dtype=np.int32)), axis=0)
+                vis[y, x1] = 1
+
+                x1 = x1 + 1
+            if x1 > x:
+                obj = np.concatenate((
+                    obj,
+                    np.array([[x, x1 - 1, y + dy, dy]], dtype=np.int32)),
+                    axis=0)
+            if x1 - 1 > x2:
+                obj = np.concatenate((
+                    obj,
+                    np.array([[x2 + 1, x1 - 1, y - dy, -dy]], dtype=np.int32)),
+                    axis=0)
+            x1 = x1 + 1
+            while x1 < x2 and not inside(x1, y, colmax, colmin, data, n, m, vis):
+                x1 = x1 + 1
+            x = x1
+    return visited, vis
+
+
+"""
 @cuda.jit
 def cuda_bfs_parallel(obj, visited, vis, colmax, colmin, data, n, m, moves, x, y):
     temp_obj = cuda.local.array((1024, 2), dtype=np.int64)
 
     while True:
-        done = True
+        # done = True
+        x, y = x,y
+        temp_idx = 0
 
-        for i in range(2):
-            x, y = x,y
-            temp_idx = 0
+        for pos in moves:
+            new_x, new_y = x + pos[0], y + pos[1]
+            if new_x < 0 or new_y < 0 or new_x >= m or new_y >= n:
+                continue
 
-            for pos in moves:
-                new_x, new_y = x + pos[0], y + pos[1]
-                if new_x < 0 or new_y < 0 or new_x >= m or new_y >= n:
-                    continue
+            cond_already_visited = vis[new_x][new_y] == 0
 
-                cond_already_visited = vis[new_x][new_y] == 0
+            r, g, b = data[new_x][new_y]
+            min_r, min_g, min_b = colmin
+            max_r, max_g, max_b = colmax
 
-                r, g, b = data[new_x][new_y]
-                min_r, min_g, min_b = colmin
-                max_r, max_g, max_b = colmax
+            cond_color = (
+                (min_r <= r <= max_r) and
+                (min_g <= g <= max_g) and
+                (min_b <= b <= max_b)
+            )
 
-                cond_color = (
-                    (min_r <= r <= max_r) and
-                    (min_g <= g <= max_g) and
-                    (min_b <= b <= max_b)
-                )
+            if not cond_color:
+                continue
 
-                if not cond_color:
-                    continue
+            if cond_already_visited:
+                temp_obj[temp_idx, 0] = new_x
+                temp_obj[temp_idx, 1] = new_y
+                vis[new_x][new_y] = 1
+                visited[temp_idx, 0] = new_x
+                visited[temp_idx, 1] = new_y
+                done = False
+                temp_idx += 1
 
-                if cond_already_visited:
-                    temp_obj[temp_idx, 0] = new_x
-                    temp_obj[temp_idx, 1] = new_y
-                    vis[new_x][new_y] = 1
-                    done = False
-                    temp_idx += 1
-
-            for j in range(temp_idx):
-                obj[obj.shape[0] + j, 0] = temp_obj[j, 0]
-                obj[obj.shape[0] + j, 1] = temp_obj[j, 1]
+        for j in range(temp_idx):
+            obj[obj.shape[0] + j, 0] = temp_obj[j, 0]
+            obj[obj.shape[0] + j, 1] = temp_obj[j, 1]
 
         # Réduire les threads actifs à ceux qui ont du travail restant
         active_threads = cuda.syncthreads_count(1 if not done else 0)
         if active_threads == 0:
             break
-
-
-def cuda_bfs_jit(obj, visited, vis, colmax, colmin, data, n, m):
-
-    threadsperblock = (16, 16)
-    blockspergrid_x = int(np.ceil(n / threadsperblock[0]))
-    blockspergrid_y = int(np.ceil(m / threadsperblock[1]))
-    blockspergrid = (blockspergrid_x, blockspergrid_y)
-
-    moves = [
-        [0, 1],
-        [1, 0],
-        [-1, 0],
-        [0, -1]
-    ]
-    moves = np.array(moves, dtype=np.int64).reshape((4, 2))
-    d_visited = cuda.to_device(visited)
-    d_vis = cuda.to_device(vis)
-    d_obj = cuda.to_device(obj)
-    d_data = cuda.to_device(data)
-    d_moves = cuda.to_device(moves)
-    cuda_bfs_parallel[blockspergrid, threadsperblock](
-        d_obj, d_visited, d_vis, colmax, colmin, d_data, n, m, d_moves, obj[0][0], obj[0][1]
-    )
-
-    cuda.synchronize()
-
-    visited = d_visited.copy_to_host()
-    vis = d_vis.copy_to_host()
-    # Je dois ensuite supprimer les éléments qui sont [-1,-1]
-    indices_to_remove = np.all(visited == [-1, -1], axis=1)
-    new_visited = visited[~indices_to_remove]
-
-    return visited, vis
+"""

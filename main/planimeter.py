@@ -141,8 +141,12 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     :param is_using_cuda: permet de choisir l'optimisation gpu avec cuda
     :return: la liste des pixels visités
     """
-    n = image_array.shape[1] - 1
-    m = image_array.shape[0] - 1
+
+    # n = image_array.shape[1] - 1
+    # m = image_array.shape[0] - 1
+
+    n = image_array.shape[1]
+    m = image_array.shape[0]
     # print(n, m)
     visited = []
     vis = [[0 for _ in range(n)] for _ in range(m)]
@@ -156,6 +160,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     colmax = precolor + np.array([range_val, range_val, range_val])
     colmax = (255, 255, 255) if np.any(colmax >= (255, 255, 255)) else colmax
     obj = [[y, x]]
+
 
     if not is_using_cuda:
         """
@@ -198,6 +203,34 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             n,
             m)
     else:
+
+        # visited = gpu_optimisation.scanline_fill(np.array([x, y]), visited, colmax, colmin, data, n, m)
+        obj_array = np.empty((0, 4), dtype=np.int32)
+        visited_array = np.array(visited).reshape((len(visited), 2))
+        # vis_array = np.zeros((n, m), dtype=np.int32)
+        vis_array = np.array(vis).reshape(n, m)
+        # vis_array = np.array(vis).reshape(n, m)
+        visited, vis = gpu_optimisation.optimized_fill(
+            obj_array,
+            x,
+            y,
+            visited_array,
+            vis_array,
+            colmax,
+            colmin,
+            data,
+            n,
+            m)
+        """
+        visited = []
+        for i in range(n):
+            for j in range(m):
+                if vis[i][j] == 1:
+                    visited.append([i, j])
+        """
+
+
+        """
         obj_array = np.array(obj).reshape((len(obj), 2))
         visited_array = np.array([[-1, -1] for _ in range(n*m)])
         visited_array = visited_array.reshape((len(visited_array), 2))
@@ -212,8 +245,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             data,
             n,
             m)
-
-
+        """
 
         # visited = gpu_optimisation.bfs_cuda_jit(image_array, colmin, colmax, visited, vis, x, y, n, m)
         # visited = gpu_optimisation.calculate_area(image_array, x, y)
