@@ -161,7 +161,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     colmax = (255, 255, 255) if np.any(colmax >= (255, 255, 255)) else colmax
     obj = [[y, x]]
 
-
     if not is_using_cuda:
         """
         while len(obj) > 0:
@@ -210,6 +209,17 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         # vis_array = np.zeros((n, m), dtype=np.int32)
         vis_array = np.array(vis).reshape(n, m)
         # vis_array = np.array(vis).reshape(n, m)
+
+        visited, vis = gpu_optimisation.flood_fill_pil_inspiration(
+            image_array,
+            (y, x),
+            (0, 0, 0),
+            visited_array,
+            vis,
+            border=None,
+            thresh=120)
+
+        """
         visited, vis = gpu_optimisation.optimized_fill(
             obj_array,
             x,
@@ -221,6 +231,11 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             data,
             n,
             m)
+        """
+
+
+
+
         """
         visited = []
         for i in range(n):

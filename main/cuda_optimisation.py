@@ -55,101 +55,13 @@ def change_color(image_array, coordinates, show_traited_image):
         resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
         return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
 
-"""
-@cuda.jit
-def count_pixels_kernel(image_array, colmin, colmax, visited, vis, x, y, n, m):
-    tid_x = cuda.threadIdx.x + cuda.blockIdx.x * cuda.blockDim.x
-    tid_y = cuda.threadIdx.y + cuda.blockIdx.y * cuda.blockDim.y
-
-    if tid_x < n and tid_y < m:
-        r, g, b = image_array[tid_y, tid_x]  # Get RGB values of pixel
-        min_r, min_g, min_b = colmin         # Unpack minimum RGB values
-        max_r, max_g, max_b = colmax         # Unpack maximum RGB values
-
-        if min_r <= r <= max_r and min_g <= g <= max_g and min_b <= b <= max_b and not vis[tid_y, tid_x]:
-            visited[tid_y, tid_x] = 1
-            vis[tid_y, tid_x] = 1
-
-
-def bfs_cuda_jit(image_array, colmin, colmax, visited, vis, x, y, n, m):
-    threadsperblock = (16, 16)
-    blockspergrid_x = int(np.ceil(n / threadsperblock[0]))
-    blockspergrid_y = int(np.ceil(m / threadsperblock[1]))
-    blockspergrid = (blockspergrid_x, blockspergrid_y)
-
-    d_visited = cuda.to_device(visited)
-    d_vis = cuda.to_device(vis)
-    d_image_array = cuda.to_device(image_array)
-    colmin = np.array(colmin, dtype=np.int32)
-    colmax = np.array(colmax, dtype=np.int32)
-
-    count_pixels_kernel[blockspergrid, threadsperblock](
-        d_image_array, colmin, colmax, d_visited, d_vis, x, y, n, m
-    )
-
-    visited = d_visited.copy_to_host()
-    vis = d_vis.copy_to_host()
-    cuda.synchronize()
-
-    return visited
-"""
-
-
-"""
-@cuda.jit
-def for_each_move(image_array, colmin, colmax, move, move_possible, x, y, n, m):
-    tid = cuda.grid(1)
-    if tid < 7:
-        move[tid] += y
-        move[tid+1] += x
-        y_pos = move[tid]
-        x_pos = move[tid]
-        if 0 < y_pos < m and 0 < x_pos < n:
-            r, g, b = image_array[y_pos][x_pos]  # Get RGB values of pixel
-            min_r, min_g, min_b = colmin         # Unpack minimum RGB values
-            max_r, max_g, max_b = colmax         # Unpack maximum RGB values
-
-            if min_r <= r <= max_r and min_g <= g <= max_g and min_b <= b <= max_b:
-                move_possible[tid+1] = True
-
-
-def execute_move(image_array, colmin, colmax, x, y, n, m):
-    global STATIC_CALL_INCREMENT
-    print("LE CALLL EST DE ---> ",STATIC_CALL_INCREMENT)
-    STATIC_CALL_INCREMENT+=1
-    image_array = np.array(image_array)
-    move = np.asarray([
-                0, 1,
-                1, 0,
-                -1, 0,
-                0, -1
-                ], dtype=np.int64)
-    d_move = cuda.to_device(move)
-    move_possible = np.array([False, False, False, False])
-    nthreads = 8
-    nblocks = (len(move) // nthreads) + 1
-
-    colmin = np.array(colmin, dtype=np.int64)
-    colmax = np.array(colmax, dtype=np.int64)
-
-    for_each_move[nblocks, nthreads](
-        image_array, colmin, colmax, d_move, move_possible, x, y, n, m
-    )
-
-    new_move = []
-    for i in range(len(move_possible)):
-        if move_possible[i]:
-            new_move.append([move[i+1]+x, move[i]+y])
-    return new_move
-"""
-
 
 # @jit --> permet d'accelerer le code dans le CPU
 # a utiliser quand on a pas idée du nombre de thread à distribuer (fonction avec tableau qui change)
 
 # @jit(nopython=True, cache=True)
 
-#@jit(nopython=True, cache=True)
+# @jit(nopython=True, cache=True)
 
 
 @njit(cache=True)
@@ -187,8 +99,7 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
     return visited, vis
 
 
-#@jit(nopython=True, cache=True)
-
+# @jit(nopython=True, cache=True)
 
 @njit(cache=True)
 def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
@@ -278,6 +189,76 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
             x = x1
     return visited, vis
 
+# TEST AVEC EDGES & VERTICES
+# TEST AVEC EDGES & VERTICES
+# TEST AVEC EDGES & VERTICES
+
+
+def color_diff(color1, color2):
+    """
+    Uses 1-norm distance to calculate difference between two values.
+    """
+    if isinstance(color2, tuple):
+        return sum(abs(color1[i] - color2[i]) for i in range(0, len(color2)))
+    else:
+        return abs(color1 - color2)
+
+
+# modified and took from PILLOW open source library
+def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thresh=0):
+    """
+    (experimental) Fills a bounded region with a given color.
+
+    :param image: Target image.
+    :param xy: Seed position (a 2-item coordinate tuple). See
+        :ref:`coordinate-system`.
+    :param value: Fill color.
+    :param border: Optional border value.  If given, the region consists of
+        pixels with a color different from the border color.  If not given,
+        the region consists of pixels having the same color as the seed
+        pixel.
+    :param thresh: Optional threshold value which specifies a maximum
+        tolerable difference of a pixel value from the 'background' in
+        order for it to be replaced. Useful for filling regions of
+        non-homogeneous, but similar, colors.
+    """
+    pixel = np.copy(image)
+    x, y = xy
+
+    background = tuple(pixel[x, y])
+    edge = {(x, y)}
+    # use a set to keep record of current and previous edge pixels
+    # to reduce memory consumption
+    full_edge = set()
+    while edge:
+        new_edge = set()
+        for x, y in edge:  # 4 adjacent method
+            for s, t in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                # If already processed, or if a coordinate is negative, skip
+                if (s, t) in full_edge or s < 0 or t < 0:
+                    continue
+                try:
+                    p = pixel[s, t]
+                except (ValueError, IndexError):
+                    pass
+                else:
+                    full_edge.add((s, t))
+                    if border is None:
+                        fill = color_diff(p, background) <= thresh
+                    else:
+                        fill = p != value and p != border
+                    if fill:
+                        # pixel[s, t] = value
+                        new_edge.add((s, t))
+                        # print("TEST S AND T")
+                        # print(s)
+                        # print(t)
+                        vis[s][t] = 1
+                        visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis=0)
+
+        full_edge = edge  # discard pixels processed
+        edge = new_edge
+    return visited, vis
 
 """
 @cuda.jit

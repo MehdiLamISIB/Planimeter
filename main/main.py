@@ -4,7 +4,7 @@ import planimeter as planimeter
 import reference as ref
 import tkinter as tk
 from tkinter import filedialog
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 """
 Projet :
 Cela semble être un projet intéressant et un peu complexe, mais nous pouvons le diviser en étapes plus petites. 
