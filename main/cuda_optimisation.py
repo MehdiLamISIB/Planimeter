@@ -98,8 +98,6 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
     return visited, vis
 
 
-# @jit(nopython=True, cache=True)
-
 @njit(cache=True)
 def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
 
@@ -188,23 +186,7 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
             x = x1
     return visited, vis
 
-# TEST AVEC EDGES & VERTICES
-# TEST AVEC EDGES & VERTICES
-# TEST AVEC EDGES & VERTICES
 
-"""
-def color_diff(color1, color2):
-
-    # Uses 1-norm distance to calculate difference between two values.
-    
-    if isinstance(color2, tuple):
-        return sum(abs(color1[i] - color2[i]) for i in range(0, len(color2)))
-    else:
-        return abs(color1 - color2)
-"""
-
-
-# modified and took from PILLOW open source library
 def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thresh=0):
 
     def color_diff(color1, color2):
@@ -258,13 +240,6 @@ def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thre
 @njit(cache=True)
 def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
 
-    """
-    def color_diff(color1, color2, t):
-        a1, a2, a3 = color1
-        b1, b2, b3 = color2
-        return abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3) <= t*3
-    """
-
     def check_in_list(arr_list, target):
         for arr in arr_list:
             if np.array_equal(arr, target):
@@ -279,7 +254,9 @@ def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=N
         for idx in range(edge.shape[0]):
             x, y = edge[idx]
             for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]], dtype=np.int32):
-                if s < 0 or t < 0 or check_in_list(full_edge, [s, t]):
+                if s < 0 or t < 0 :#or check_in_list(full_edge, [s, t]):
+                    continue
+                elif check_in_list(full_edge, [s, t]):
                     continue
                 else:
                     p = pixel[s, t]

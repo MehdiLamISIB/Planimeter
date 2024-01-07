@@ -135,7 +135,7 @@ def main_application():
 
             EVENT_REFERENCE_DONE = True
             canvas.config(cursor="crosshair")
-            print("Reference calculé")
+            # print("Reference calculé")
         else:
             canvas.config(cursor="crosshair")
             print("besoin d'avoir une image !!!!!")
@@ -144,13 +144,13 @@ def main_application():
         global EVENT_IMAGE_SET, EVENT_REFERENCE_DONE, COEFF_X, COEFF_Y, REF_DENSITY, IMAGE_ARRAY, COLOR_RANGE
         x = event.x
         y = event.y
-        print(f"Clicked at (x={x}, y={y})")
-        print("Is using CUDA --> ", TOOGLE_CUDA_CHOOSE.get())
+        # print(f"Clicked at (x={x}, y={y})")
+        # print("Is using CUDA --> ", TOOGLE_CUDA_CHOOSE.get())
         # Si une image est affiché, on peut lancer l'algo
         if EVENT_IMAGE_SET:
             img_x_pos = int(x*COEFF_X)
             img_y_pos = int(y*COEFF_Y)
-            print(f"Clicked at (x={img_x_pos}, y={img_y_pos})")
+            # print(f"Clicked at (x={img_x_pos}, y={img_y_pos})")
             if not EVENT_REFERENCE_DONE:
                 """
                 canvas.config(cursor="watch")

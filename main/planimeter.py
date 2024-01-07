@@ -2,7 +2,7 @@ import tkinter as tk
 import numpy as np
 import cv2
 import cuda_optimisation as gpu_optimisation
-from collections import deque
+import time
 
 ROOT_INFOBOX_TKINTER = None
 SCREEN_X_FAV = 30
@@ -192,6 +192,9 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         obj_array = np.array(obj).reshape((len(obj), 2))
         visited_array = np.array(visited).reshape((len(visited), 2))
         vis_array = np.array(vis).reshape(n, m)
+
+        start_time = time.time()
+
         visited, vis = gpu_optimisation.bfs_jit_parallell(
             obj_array,
             visited_array,
@@ -201,6 +204,10 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             data,
             n,
             m)
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Elapsed time CUDA==FALSE: {elapsed_time} seconds")
     else:
 
         # visited = gpu_optimisation.scanline_fill(np.array([x, y]), visited, colmax, colmin, data, n, m)
@@ -225,6 +232,10 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         # AVEC OPTIMISATION CPU/GPU
         edge = np.array([y, x], dtype=np.int32).reshape((1,2))
         full_edge = np.empty(shape=(0, 2), dtype=np.int32)
+
+        start_time = time.time()
+
+        """
         visited, vis = gpu_optimisation.flood_fill_pil_jit(
             np.array(image_array),
             (y, x),
@@ -235,6 +246,22 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             full_edge,
             border=None,
             thresh=100)
+        """
+
+        
+        visited, vis = gpu_optimisation.flood_fill_pil_inspiration(
+            image_array,
+            (y, x),
+            (0, 0, 0),
+            visited_array,
+            vis,
+            border=None,
+            thresh=30
+        )
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Elapsed time CUDA==TRUE: {elapsed_time} seconds")
         #print("VISITED --> ",visited)
         #print("VIS --> ",vis)
         """
@@ -250,38 +277,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             n,
             m)
         """
-
-
-
-
-        """
-        visited = []
-        for i in range(n):
-            for j in range(m):
-                if vis[i][j] == 1:
-                    visited.append([i, j])
-        """
-
-
-        """
-        obj_array = np.array(obj).reshape((len(obj), 2))
-        visited_array = np.array([[-1, -1] for _ in range(n*m)])
-        visited_array = visited_array.reshape((len(visited_array), 2))
-        vis_array = np.array(vis).reshape(n, m)
-
-        visited, vis = gpu_optimisation.cuda_bfs_jit(
-            obj,
-            visited_array,
-            vis,
-            colmax,
-            colmin,
-            data,
-            n,
-            m)
-        """
-
-        # visited = gpu_optimisation.bfs_cuda_jit(image_array, colmin, colmax, visited, vis, x, y, n, m)
-        # visited = gpu_optimisation.calculate_area(image_array, x, y)
 
     # On affiche l'aire qui a été trouvé en remappant les pixsels parcourus
     # Dans les 2 cas on retournes les pixels
