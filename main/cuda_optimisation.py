@@ -4,7 +4,6 @@ from numba import njit
 import numpy as np
 import cv2
 
-STATIC_CALL_INCREMENT = 0
 
 """
 Pour ce code, je vais devoir :
@@ -22,23 +21,9 @@ Pour ce code, je vais devoir :
 @cuda.jit
 def change_color_kernel(image, coordinates, vis):
     y, x = cuda.grid(2)
-    # Calculate thread indices
-    #x = cuda.threadIdx.x + cuda.blockIdx.x * cuda.blockDim.x
-    #y = cuda.threadIdx.y + cuda.blockIdx.y * cuda.blockDim.y
-
-
     if y < image.shape[0] and x < image.shape[1]:
         if vis[y,x] == 1:
             image[y, x] = (0, 0, 0)
-
-    """
-    for coord in coordinates:
-        if y == coord[0] and x == coord[1]:
-            # Change la couleur du pixel
-            image[y, x] = (0, 0, 0)
-            break
-    s"""
-
 
 
 # change_color : appelle le kernel cuda et retourne la nouvelle image crée
@@ -70,11 +55,6 @@ def change_color(image_array, coordinates, vis, is_using_optimization, show_trai
 
 # @jit --> permet d'accelerer le code dans le CPU
 # a utiliser quand on a pas idée du nombre de thread à distribuer (fonction avec tableau qui change)
-
-# @jit(nopython=True, cache=True)
-
-# @jit(nopython=True, cache=True)
-
 
 @njit(cache=True)
 def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
