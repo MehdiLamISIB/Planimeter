@@ -162,7 +162,8 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     obj = [[y, x]]
 
     if not is_using_cuda:
-        """
+        start_time = time.time()
+
         while len(obj) > 0:
             # On recuper la nouvelle position pour notre BFS
             coord = obj[0]
@@ -188,12 +189,14 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     obj.append([x + pos[0], y + pos[1]])
                     visited.append([x + pos[0], y + pos[1]])
                     vis[x + pos[0]][y + pos[1]] = 1
+
         """
+        
         obj_array = np.array(obj).reshape((len(obj), 2))
         visited_array = np.array(visited).reshape((len(visited), 2))
         vis_array = np.array(vis).reshape(n, m)
 
-        start_time = time.time()
+        
 
         visited, vis = gpu_optimisation.bfs_jit_parallell(
             obj_array,
@@ -204,7 +207,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             data,
             n,
             m)
-
+        """
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"Elapsed time OPTIMISATION==FALSE: {elapsed_time} seconds")
