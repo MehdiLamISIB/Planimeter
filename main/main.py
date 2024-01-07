@@ -154,25 +154,6 @@ def main_application():
             img_y_pos = int(y*COEFF_Y)
             # print(f"Clicked at (x={img_x_pos}, y={img_y_pos})")
             if not EVENT_REFERENCE_DONE:
-                """
-                canvas.config(cursor="watch")
-
-                REF_DENSITY = ref.mm_area_of_pixel_unit_with_counts_know(
-                    len(planimeter.surface_area(
-                        img_x_pos,
-                        img_y_pos,
-                        COLOR_RANGE,
-                        IMAGE_ARRAY,
-                        showing_result=False,
-                        is_using_cuda=False))
-                )
-
-                EVENT_REFERENCE_DONE = True
-
-                canvas.config(cursor="crosshair")
-
-                print("Reference calculé")
-                """
                 print("la reference n'as pas encore ete mis ")
                 # return None
             else:

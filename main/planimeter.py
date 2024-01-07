@@ -215,15 +215,12 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         elapsed_time = end_time - start_time
         print(f"Elapsed time OPTIMISATION==FALSE: {elapsed_time} seconds")
     else:
-
         # visited = gpu_optimisation.scanline_fill(np.array([x, y]), visited, colmax, colmin, data, n, m)
         obj_array = np.empty((0, 4), dtype=np.int32)
         visited_array = np.array(visited).reshape((len(visited), 2))
         # vis_array = np.zeros((n, m), dtype=np.int32)
         vis_array = np.array(vis).reshape(m, n)
         # vis_array = np.array(vis).reshape(n, m)
-
-
         edge = np.array([y, x], dtype=np.int32).reshape((1,2))
         full_edge = np.empty(shape=(0, 2), dtype=np.int32)
 
@@ -242,8 +239,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             border=None,
             thresh=100)
         """
-
-
         # LE plus rapide
         visited, vis = gpu_optimisation.flood_fill_optimisation_final(
             image_array,
@@ -254,9 +249,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             border=None,
             thresh=30
         )
-
-
-
 
         # LE DERNIER, 2x plus lent que le 2eme
         """
@@ -273,14 +265,9 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             m)
         """
 
-
-
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"Elapsed time OPTIMISATION==TRUE: {elapsed_time} seconds")
-        #print("VISITED --> ",visited)
-        #print("VIS --> ",vis)
-
 
     # On affiche l'aire qui a été trouvé en remappant les pixsels parcourus
     # Dans les 2 cas on retournes les pixels
@@ -288,15 +275,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         if showing_result:
             showfounded_area(vis, n, m)
         return visited, vis
-    # Je dois utiliser "except Exception" sinon si je fais seulement "except:"
-    # Il va aussi prendre en compte "SystemExit" and "KeyboardInterrupt"
+
     except Exception:
         print("il a y une erreur")
         return visited, vis
-
-
-# Montrer les images primitives
-
-
-def show_primitive():
-    return None
