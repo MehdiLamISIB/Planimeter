@@ -21,7 +21,7 @@ Pour ce code, je vais devoir :
 
 @cuda.jit
 def change_color_kernel(image, coordinates, vis):
-    x, y = cuda.grid(2)
+    y, x = cuda.grid(2)
     # Calculate thread indices
     #x = cuda.threadIdx.x + cuda.blockIdx.x * cuda.blockDim.x
     #y = cuda.threadIdx.y + cuda.blockIdx.y * cuda.blockDim.y
@@ -33,9 +33,9 @@ def change_color_kernel(image, coordinates, vis):
     """
 
     for coord in coordinates:
-        if x == coord[0] and y == coord[1]:
+        if y == coord[0] and x == coord[1]:
             # Change la couleur du pixel
-            image[x, y] = (0, 0, 0)
+            image[y, x] = (0, 0, 0)
             break
 
 
@@ -84,18 +84,18 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
 
     while obj.shape[0] > 0:
         coord = obj[0]
-        x, y = coord[0], coord[1]
+        y, x = coord[0], coord[1]
 
         obj = obj[1:]  # Retirer le premier élément de obj
 
         for pos in moves:
-            new_x, new_y = x + pos[0], y + pos[1]
-            if new_x < 0 or new_y < 0 or new_x >= m or new_y >= n:
+            new_y, new_x = y + pos[0], x + pos[1]
+            if new_x < 0 or new_y < 0 or new_x >= n or new_y >= m:
                 continue
 
-            cond_already_visited = vis[new_x][new_y] == 0
+            cond_already_visited = vis[new_y][new_x] == 0
 
-            r, g, b = data[new_x][new_y]
+            r, g, b = data[new_y][new_x]
             min_r, min_g, min_b = colmin
             max_r, max_g, max_b = colmax
 
@@ -103,12 +103,11 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
                 continue
 
             if cond_already_visited:
-                obj = np.concatenate((obj, np.array([[new_x, new_y]], dtype=np.int32)), axis=0)
-                visited = np.concatenate((visited, np.array([[new_x, new_y]], dtype=np.int32)), axis=0)
-                vis[new_x][new_y] = 1
+                obj = np.concatenate((obj, np.array([[new_y, new_x]], dtype=np.int32)), axis=0)
+                visited = np.concatenate((visited, np.array([[new_y, new_x]], dtype=np.int32)), axis=0)
+                vis[new_y][new_x] = 1
 
     return visited, vis
-
 
 @njit(cache=True)
 def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):

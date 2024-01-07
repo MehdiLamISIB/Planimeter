@@ -191,7 +191,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         """
         obj_array = np.array(obj).reshape((len(obj), 2))
         visited_array = np.array(visited).reshape((len(visited), 2))
-        vis_array = np.array(vis).reshape(m, n)
+        vis_array = np.array(vis).reshape(n, m)
 
         start_time = time.time()
 
