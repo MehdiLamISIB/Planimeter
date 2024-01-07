@@ -23,7 +23,7 @@ def info_from_surface(pixels_list, ref_density):
     x_max, y_max = 0, 0
 
     for i in range(count):
-        x, y = pixels_list[i][0], pixels_list[i][1]
+        y, x = pixels_list[i][0], pixels_list[i][1]
         c_x += x
         c_y += y
         if x < x_min:
