@@ -123,14 +123,16 @@ def main_application():
             img_x_pos = int(x*COEFF_X)
             img_y_pos = int(y*COEFF_Y)
             canvas.config(cursor="watch")
-            REF_DENSITY = ref.mm_area_of_pixel_unit_with_counts_know(
-                len(planimeter.surface_area(
+            ref_visited, ref_vis = planimeter.surface_area(
                     img_x_pos,
                     img_y_pos,
                     COLOR_RANGE,
                     IMAGE_ARRAY,
                     showing_result=False,
-                    is_using_cuda=False))
+                    is_using_cuda=False)
+
+            REF_DENSITY = ref.mm_area_of_pixel_unit_with_counts_know(
+                np.array(ref_visited).shape[0]
             )
 
             EVENT_REFERENCE_DONE = True

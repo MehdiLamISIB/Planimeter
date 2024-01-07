@@ -14,7 +14,10 @@ SCREEN_Y_FAV = 30
 
 def info_from_surface(pixels_list, ref_density):
     INT_INFITE = 10**26
-    count = len(pixels_list)
+
+    pixels_list = np.array(pixels_list)
+    count = pixels_list.shape[0]
+
     c_x, c_y = 0, 0
     x_min, y_min = INT_INFITE, INT_INFITE
     x_max, y_max = 0, 0
@@ -239,7 +242,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         start_time = time.time()
 
         """
-        visited, vis = gpu_optimisation.flood_fill_pil_jit(
+        visited, vis = gpu_optimisation.flood_fill_opti_jit(
             np.array(image_array),
             (y, x),
             np.array([0, 0, 0]),
@@ -251,8 +254,8 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             thresh=100)
         """
 
-        
-        visited, vis = gpu_optimisation.flood_fill_pil_inspiration(
+        """
+        visited, vis = gpu_optimisation.flood_fill_optimisation_final(
             image_array,
             (y, x),
             (0, 0, 0),
@@ -261,13 +264,10 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             border=None,
             thresh=30
         )
-
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"Elapsed time OPTIMISATION==TRUE: {elapsed_time} seconds")
-        #print("VISITED --> ",visited)
-        #print("VIS --> ",vis)
         """
+
+
+
         visited, vis = gpu_optimisation.optimized_fill(
             obj_array,
             x,
@@ -279,7 +279,14 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             data,
             n,
             m)
-        """
+
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Elapsed time OPTIMISATION==TRUE: {elapsed_time} seconds")
+        #print("VISITED --> ",visited)
+        #print("VIS --> ",vis)
+
 
     # On affiche l'aire qui a été trouvé en remappant les pixsels parcourus
     # Dans les 2 cas on retournes les pixels

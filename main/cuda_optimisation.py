@@ -109,7 +109,7 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
                 vis[new_y][new_x] = 1
 
     return visited, vis
-
+"""
 @njit(cache=True)
 def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
 
@@ -134,6 +134,97 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
         pass
 
     # COMMENCEMENT ALGORITHME
+    # COMMENCEMENT ALGORITHME
+    if not inside(x, y, colmax, colmin, data, n, m, vis):
+        return visited, vis
+    # On commence la on peut plus remplir pour regler le soucis
+    #while inside(x, y, colmax, colmin, data, n, m, vis):
+    #    x = x - 1
+    #x = x+1
+
+
+    obj = np.concatenate((
+        obj,
+        np.array([[x, x, y, 1]], dtype=np.int32)),
+        axis=0)
+
+    if y - 1 > 0:
+        obj = np.concatenate((
+            obj,
+            np.array([[x, x, y - 1, -1]], dtype=np.int32)),
+            axis=0)
+
+    while obj.shape[0] > 0:
+        coord = obj[0]
+        x1, x2, y, dy = coord[0], coord[1], coord[2], coord[3]
+        x = x1
+        obj = obj[1:]
+
+        if inside(x, y, colmax, colmin, data, n, m, vis):
+            while inside(x - 1, y, colmax, colmin, data, n, m, vis):
+                # set_pixel(x - 1, y, visited, vis, data, n, m)
+                # visited = np.concatenate((visited, np.array([[x1-1, y]], dtype=np.int32)), axis=0)
+                visited = np.concatenate((visited, np.array([[y, x-1]], dtype=np.int32)), axis=0)
+                vis[y, x-1] = 1
+
+                x = x - 1
+            if x < x1:
+                obj = np.concatenate((
+                    obj,
+                    np.array([[x, x1 - 1, y - dy, -dy]], dtype=np.int32)),
+                    axis=0)
+
+        while x1 <= x2:
+            while inside(x1, y, colmax, colmin, data, n, m, vis):
+                # set_pixel(x1, y, visited, vis, data, n, m)
+                # visited = np.concatenate((visited, np.array([[x1, y]], dtype=np.int32)), axis=0)
+                visited = np.concatenate((visited, np.array([[y, x1]], dtype=np.int32)), axis=0)
+                vis[y, x1] = 1
+
+                x1 = x1 + 1
+            if x1 > x:
+                obj = np.concatenate((
+                    obj,
+                    np.array([[x, x1 - 1, y + dy, dy]], dtype=np.int32)),
+                    axis=0)
+            if x1 - 1 > x2:
+                obj = np.concatenate((
+                    obj,
+                    np.array([[x2 + 1, x1 - 1, y - dy, -dy]], dtype=np.int32)),
+                    axis=0)
+            x1 = x1 + 1
+            while x1 < x2 and not inside(x1, y, colmax, colmin, data, n, m, vis):
+                x1 = x1 + 1
+            x = x1
+    return visited, vis
+"""
+
+
+@njit(cache=True)
+def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
+
+    def inside(x, y, colmax, colmin, data, n, m, vis):
+        new_x, new_y = x, y
+        if new_x < 0 or new_y < 0 or new_x >= n or new_y >= m:
+            return False
+
+        cond_already_visited = vis[new_y][new_x] == 0
+
+        r, g, b = data[new_y][new_x]
+        min_r, min_g, min_b = colmin
+        max_r, max_g, max_b = colmax
+
+        if not (min_r <= r <= max_r and min_g <= g <= max_g and min_b <= b <= max_b):
+            return False
+
+        if cond_already_visited:
+            return True
+        else:
+            return False
+        pass
+
+    # COMMENCEMENT ALGORITHME
+    # COMMENCEMENT ALGORITHME
     if not inside(x, y, colmax, colmin, data, n, m, vis):
         return visited, vis
     # On commence la on peut plus remplir pour regler le soucis
@@ -142,6 +233,7 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
         x = x - 1
     x = x+1
     """
+
 
     obj = np.concatenate((
         obj,
@@ -199,27 +291,16 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
     return visited, vis
 
 
-def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thresh=0):
-
-    """
-    def color_diff(color1, color2):
-        if isinstance(color2, tuple):
-            return sum(abs(color1[i] - color2[i]) for i in range(0, len(color2)))
-        else:
-            return abs(color1 - color2)
-    """
-
+def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, thresh=0):
     pixel = np.array(image)
     x, y = xy
-
     background = tuple(pixel[x, y])
     edge = {(x, y)}
     full_edge = set()
     while edge:
         new_edge = set()
-        for x, y in edge:  # 4 adjacent method
+        for x, y in edge:
             for s, t in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
-                # If already processed, or if a coordinate is negative, skip
                 if (s, t) in full_edge or s < 0 or t < 0:
                     continue
                 try:
@@ -229,7 +310,6 @@ def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thre
                 else:
                     full_edge.add((s, t))
                     if border is None:
-                        #fill = color_diff(p, background) <= thresh
                         if isinstance(background, tuple):
                             fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh
                         else:
@@ -243,32 +323,32 @@ def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thre
                         vis[s][t] = 1
                         visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis=0)
 
-        full_edge = edge  # discard pixels processed
+        full_edge = edge
         edge = new_edge
     return visited, vis
 
 
 @njit(cache=True)
-def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
+def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
 
     def check_in_list(arr_list, target):
         for arr in arr_list:
-            if np.array_equal(arr, target):
+            if arr[0] == target[0] and arr[1] == target[1]:
                 return True
         return False
     pixel = image
     x, y = xy
     background = pixel[x, y]
-    # full_edge = np.empty((0, 2), dtype=np.int32)
     while edge.shape[0] > 0:
         new_edge = np.empty(shape=(0, 2), dtype=np.int32)
         for idx in range(edge.shape[0]):
             x, y = edge[idx]
             for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]], dtype=np.int32):
-                if s < 0 or t < 0 :#or check_in_list(full_edge, [s, t]):
+                if s < 0 or t < 0 or check_in_list(full_edge, [s, t]):
                     continue
-                elif check_in_list(full_edge, [s, t]):
-                    continue
+
+                # elif check_in_list(full_edge, [s, t]):
+                #     continue
                 else:
                     p = pixel[s, t]
                     full_edge = np.concatenate((full_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
