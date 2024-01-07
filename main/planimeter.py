@@ -211,7 +211,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
 
 
         # LE plus rapide
-        """
+
         visited, vis = gpu_optimisation.flood_fill_optimisation_final(
             image_array,
             (y, x),
@@ -221,9 +221,9 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             border=None,
             thresh=30
         )
-        """
 
         # LE 2EME
+        """
         visited, vis = gpu_optimisation.flood_fill_opti_jit(
             np.array(image_array),
             (y, x),
@@ -234,6 +234,8 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             full_edge,
             border=None,
             thresh=30)
+        """
+
         # LE DERNIER, 2x plus lent que le 2eme
         """
         visited, vis = gpu_optimisation.optimized_fill(
