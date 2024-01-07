@@ -26,17 +26,18 @@ def change_color_kernel(image, coordinates, vis):
     #x = cuda.threadIdx.x + cuda.blockIdx.x * cuda.blockDim.x
     #y = cuda.threadIdx.y + cuda.blockIdx.y * cuda.blockDim.y
 
-    """
-    if 0 < y < image.shape[0] and 0 < x < image.shape[1]:
+
+    if y < image.shape[0] and x < image.shape[1]:
         if vis[y,x] == 1:
             image[y, x] = (0, 0, 0)
-    """
 
+    """
     for coord in coordinates:
         if y == coord[0] and x == coord[1]:
             # Change la couleur du pixel
             image[y, x] = (0, 0, 0)
             break
+    s"""
 
 
 
