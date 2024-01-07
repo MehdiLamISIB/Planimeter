@@ -255,20 +255,15 @@ def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thre
     return visited, vis
 
 
-
+@njit
 def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
 
     def color_diff(color1, color2):
         a1, a2, a3 = color1
         b1, b2, b3 = color2
-        val = (abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3)) // 3
-        if val >255:
-            return 255
-        elif val < 0:
-            return 0
-        else:
-            return val
-
+        val = (abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3)) #// 3
+        return val
+        return np.sum(np.abs(np.subtract(color1, color2, dtype=np.int32))) / color1.shape[0]
     pixel = image.copy()  # Avoid using np.copy inside the function
     x, y = xy
 
@@ -278,13 +273,18 @@ def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=N
         for idx in range(edge.shape[0]):
             x, y = edge[idx]
             for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]], dtype=np.int32):
-                if (np.array([s, t]) in full_edge) or s < 0 or t < 0:
+
+                #                    np.array([s, t]) in full_edge:
+                #                    np.any(full_edge[:,0] == np.array([s,t])):
+                if s < 0 or t < 0 or np.where(full_edge == np.array([s, t], dtype=np.int32))[0].shape[0] > 0:
                     continue
+
+                    pass
                 else:
                     full_edge = np.concatenate((full_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
 
                     p = pixel[s, t]
-
+                    fill = True
                     if border is None:
                         fill = color_diff(p, background) <= thresh
                     else:
@@ -298,8 +298,8 @@ def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=N
                         new_edge = np.concatenate((new_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
                         vis[s][t] = 1
                         visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis = 0)
-        full_edge = edge.copy()
-        edge = new_edge.copy()
+        full_edge = edge#.copy()
+        edge = new_edge#.copy()
     return visited, vis
 
 

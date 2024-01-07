@@ -223,7 +223,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             thresh=30)
         """
         # AVEC OPTIMISATION CPU/GPU
-        edge = np.array([x,y], dtype=np.int32).reshape((1,2))
+        edge = np.array([y,x], dtype=np.int32).reshape((1,2))
         full_edge = np.array([], dtype=np.int32).reshape((0,2))
         visited, vis = gpu_optimisation.flood_fill_pil_jit(
             image_array,
@@ -234,7 +234,8 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             edge,
             full_edge,
             border=None,
-            thresh=30)
+            thresh=200)
+
         """
         visited, vis = gpu_optimisation.optimized_fill(
             obj_array,
