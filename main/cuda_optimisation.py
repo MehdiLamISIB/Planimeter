@@ -272,7 +272,6 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
 
 
 def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, thresh=0):
-    # neighbors = np.array([[1, 0], [-1, 0], [0, 1], [0, -1]], dtype=np.int32)
     pixel = np.array(image)
     x, y = xy
     background = tuple(pixel[x, y])
@@ -282,8 +281,6 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
         new_edge = set()
         for x, y in edge:
             for s, t in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
-            #for i in range(neighbors.shape[0]):
-            #    s, t = x+neighbors[i, 0], y+neighbors[i, 1]
                 if (s, t) in full_edge or s < 0 or t < 0:
                     continue
                 try:
@@ -302,14 +299,12 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
                         fill = p != value and p != border
                     if fill:
                         new_edge.add((s, t))
-
                         vis[s][t] = 1
-                        visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis=0)
-                        #visited = np.vstack((visited, np.array([s, t], dtype=np.int32)))
+                        visited.append([s,t])
 
         full_edge = edge
         edge = new_edge
-    return visited, vis
+    return np.array(visited), vis
 
 
 @jit(nopython=True, cache=True, fastmath=True)

@@ -215,7 +215,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             image_array,
             (y, x),
             (0, 0, 0),
-            visited_array,
+            visited,
             vis,
             border=None,
             thresh=30
