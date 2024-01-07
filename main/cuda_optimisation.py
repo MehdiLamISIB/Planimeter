@@ -20,30 +20,42 @@ Pour ce code, je vais devoir :
 
 
 @cuda.jit
-def change_color_kernel(image, coordinates):
+def change_color_kernel(image, coordinates, vis):
     x, y = cuda.grid(2)
-    if x < image.shape[0] and y < image.shape[1]:
-        for coord in coordinates:
-            if x == coord[0] and y == coord[1]:
-                image[x, y] = (0, 0, 0)  # Change pixel color to black
+    # Calculate thread indices
+    #x = cuda.threadIdx.x + cuda.blockIdx.x * cuda.blockDim.x
+    #y = cuda.threadIdx.y + cuda.blockIdx.y * cuda.blockDim.y
+
+    """
+    if 0 < y < image.shape[0] and 0 < x < image.shape[1]:
+        if vis[y,x] == 1:
+            image[y, x] = (0, 0, 0)
+    """
+
+    for coord in coordinates:
+        if x == coord[0] and y == coord[1]:
+            # Change la couleur du pixel
+            image[x, y] = (0, 0, 0)
+            break
+
 
 
 # change_color : appelle le kernel cuda et retourne la nouvelle image crée
 
 
-def change_color(image_array, coordinates, show_traited_image):
-    image = np.copy(image_array) # cv2.imread(image_path)
+def change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
+    image = np.array(image_array) # cv2.imread(image_path)
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert image to RGB
-
     threadsperblock = (16, 16)
-    blockspergrid_x = (image.shape[0] + threadsperblock[0] - 1) // threadsperblock[0]
-    blockspergrid_y = (image.shape[1] + threadsperblock[1] - 1) // threadsperblock[1]
-    blockspergrid = (blockspergrid_x, blockspergrid_y)
+    blockspergrid_x = (image.shape[1] + threadsperblock[1] - 1) // threadsperblock[1]
+    blockspergrid_y = (image.shape[0] + threadsperblock[0] - 1) // threadsperblock[0]
+    blockspergrid = (blockspergrid_y, blockspergrid_x)
 
     d_image = cuda.to_device(image)
     d_coordinates = cuda.to_device(np.array(coordinates))
+    d_vis = cuda.to_device(np.array(vis))
 
-    change_color_kernel[blockspergrid, threadsperblock](d_image, d_coordinates)
+    change_color_kernel[blockspergrid, threadsperblock](d_image, d_coordinates, d_vis)
     d_image.copy_to_host(image)
 
     if show_traited_image:

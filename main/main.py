@@ -176,7 +176,7 @@ def main_application():
             else:
                 canvas.config(cursor="watch")
 
-                pixel_list = planimeter.surface_area(img_x_pos,
+                pixel_list, vis = planimeter.surface_area(img_x_pos,
                                                      img_y_pos,
                                                      COLOR_RANGE,
                                                      IMAGE_ARRAY,
@@ -184,7 +184,7 @@ def main_application():
                                                      is_using_cuda=TOOGLE_CUDA_CHOOSE.get())
 
                 # print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
-                cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, False))
+                cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, vis, TOOGLE_CUDA_CHOOSE.get(), False))
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
                 # planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
 

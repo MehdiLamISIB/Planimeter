@@ -126,8 +126,8 @@ def showfounded_area(visited, n, m):
     cv2.imshow('Area found', img_search)
 
 
-def draw_foundedarea(image_array, pixels_list, show_traited_image):
-    return gpu_optimisation.change_color(image_array, pixels_list, show_traited_image)
+def draw_foundedarea(image_array, pixels_list, vis, is_using_cuda, show_traited_image):
+    return gpu_optimisation.change_color(image_array, pixels_list, vis, is_using_cuda, show_traited_image)
 
 
 def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
@@ -191,7 +191,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         """
         obj_array = np.array(obj).reshape((len(obj), 2))
         visited_array = np.array(visited).reshape((len(visited), 2))
-        vis_array = np.array(vis).reshape(n, m)
+        vis_array = np.array(vis).reshape(m, n)
 
         start_time = time.time()
 
@@ -214,7 +214,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         obj_array = np.empty((0, 4), dtype=np.int32)
         visited_array = np.array(visited).reshape((len(visited), 2))
         # vis_array = np.zeros((n, m), dtype=np.int32)
-        vis_array = np.array(vis).reshape(n, m)
+        vis_array = np.array(vis).reshape(m, n)
         # vis_array = np.array(vis).reshape(n, m)
 
 
@@ -283,12 +283,12 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     try:
         if showing_result:
             showfounded_area(vis, n, m)
-        return visited
+        return visited, vis
     # Je dois utiliser "except Exception" sinon si je fais seulement "except:"
     # Il va aussi prendre en compte "SystemExit" and "KeyboardInterrupt"
     except Exception:
         print("il a y une erreur")
-        return visited
+        return visited, vis
 
 
 # Montrer les images primitives
