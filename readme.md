@@ -3,4 +3,4 @@
 # 💻 Keybind
 ### ▶️ Right click : select shape
 ### ▶️ Double right click : select reference
-### ▶️ Choose CUDA optimization in Application menu
+### ▶️ Choose JIT/CUDA optimization in Application menu
