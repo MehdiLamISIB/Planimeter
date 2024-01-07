@@ -56,6 +56,7 @@ def change_color(image_array, coordinates, vis, is_using_optimization, show_trai
 # @jit --> permet d'accelerer le code dans le CPU
 # a utiliser quand on a pas idée du nombre de thread à distribuer (fonction avec tableau qui change)
 
+
 @njit(cache=True)
 def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
     moves = np.array([
@@ -111,17 +112,15 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
                     full_edge.add((s, t))
                     if border is None:
                         if isinstance(background, tuple):
-                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh
+                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh*3
                         else:
                             fill = abs(color1 - color2) <= thresh
                     else:
-
                         fill = p != value and p != border
                     if fill:
                         new_edge.add((s, t))
                         vis[s][t] = 1
                         visited.append([s,t])
-
         full_edge = edge
         edge = new_edge
     return np.array(visited), vis
