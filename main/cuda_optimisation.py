@@ -308,14 +308,20 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
     return visited, vis
 
 
-@njit(cache=True)
+@njit
 def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
-
+    """
     def check_in_list(arr_list, target):
-        for arr in arr_list:
-            if arr[0] == target[0] and arr[1] == target[1]:
-                return True
+        i=0
+        found = False
+        while i < arr_list.shape[0]:
+            if arr_list[i, 0] == target[0] and arr_list[i, 1] == target[1]:
+                found = True
+                break
+            i+=1
         return False
+    """
+    neighbors = np.array([[1, 0], [-1, 0], [0, 1], [0, -1]], dtype=np.int32)
     pixel = image
     x, y = xy
     background = pixel[x, y]
@@ -323,8 +329,19 @@ def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=
         new_edge = np.empty(shape=(0, 2), dtype=np.int32)
         for idx in range(edge.shape[0]):
             x, y = edge[idx]
-            for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]], dtype=np.int32):
-                if s < 0 or t < 0 or check_in_list(full_edge, [s, t]):
+            #for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]], dtype=np.int32):
+            for i in range(neighbors.shape[0]):
+                s, t = x+neighbors[i, 0], y+neighbors[i, 1]
+                # On verifie si deja dans la liste pour pas perdre de temps
+                i = 0
+                found = False
+                while i < full_edge.shape[0]:
+                    if full_edge[i, 0] == s and full_edge[i, 1] == t:
+                        found = True
+                        break
+                    i += 1
+                # On verifie si deja dans la liste pour pas perdre de temps
+                if s < 0 or t < 0 or found:#check_in_list(full_edge, [s, t]):
                     continue
 
                 # elif check_in_list(full_edge, [s, t]):
@@ -335,7 +352,7 @@ def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=
                     if border is None:
                         fill = (abs(p[0] - background[0]) +
                                 abs(p[1] - background[1]) +
-                                abs(p[2] - background[2])) <= thresh * 3
+                                abs(p[2] - background[2])) <= thresh
                     else:
                         fill = (
                                 (p[0] != value[0] or p[1] != value[1] or p[2] != value[2]) and
