@@ -121,8 +121,6 @@ def showfounded_area(visited, n, m):
     :param m: dimension en pixel pour y de l'image
     :return:
     """
-    # MONTRE LA FIGURE A LA FIN ET DONNER NOMBRE DE PIXEL TROUVER
-    # print(vis)
     b = np.array([255, 255, 255])
     res = np.array([[b * visited[i][j] for j in range(n)] for i in range(m)])
     img_search = res.astype(np.uint8)
@@ -144,17 +142,10 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     :param is_using_cuda: permet de choisir l'optimisation gpu avec cuda
     :return: la liste des pixels visités
     """
-
-    # n = image_array.shape[1] - 1
-    # m = image_array.shape[0] - 1
-
     n = image_array.shape[1]
     m = image_array.shape[0]
-    # print(n, m)
     visited = []
     vis = [[0 for _ in range(n)] for _ in range(m)]
-    # print(n, m, x, y)
-    # vis[x][y] = 1
     visited.append([y, x])
     data = np.copy(image_array)
 
@@ -177,8 +168,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
 
             move = [
                 [0, 1], [1, 0],
-                # [1, -1], [-1, 1],
-                # [1, 1], [-1, -1],
                 [-1, 0], [0, -1]
                     ]
             for pos in move:
@@ -188,13 +177,10 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                 cond_already_visited = vis[x + pos[0]][y + pos[1]] == 0
                 cond_colour = colour_in_range(colmin, data[x + pos[0]][y + pos[1]], colmax)
                 if cond_already_visited and cond_colour:
-                    # print(data[x+1][y]==precolor)
                     obj.append([x + pos[0], y + pos[1]])
                     visited.append([x + pos[0], y + pos[1]])
                     vis[x + pos[0]][y + pos[1]] = 1
-
         """
-        
         obj_array = np.array(obj).reshape((len(obj), 2))
         visited_array = np.array(visited).reshape((len(visited), 2))
         vis_array = np.array(vis).reshape(n, m)
@@ -215,12 +201,9 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         elapsed_time = end_time - start_time
         print(f"Elapsed time OPTIMISATION==FALSE: {elapsed_time} seconds")
     else:
-        # visited = gpu_optimisation.scanline_fill(np.array([x, y]), visited, colmax, colmin, data, n, m)
         obj_array = np.empty((0, 4), dtype=np.int32)
         visited_array = np.array(visited).reshape((len(visited), 2))
-        # vis_array = np.zeros((n, m), dtype=np.int32)
         vis_array = np.array(vis).reshape(m, n)
-        # vis_array = np.array(vis).reshape(n, m)
         edge = np.array([y, x], dtype=np.int32).reshape((1,2))
         full_edge = np.empty(shape=(0, 2), dtype=np.int32)
 
