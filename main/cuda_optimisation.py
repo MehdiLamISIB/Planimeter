@@ -305,13 +305,14 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
 
                         vis[s][t] = 1
                         visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis=0)
+                        #visited = np.vstack((visited, np.array([s, t], dtype=np.int32)))
 
         full_edge = edge
         edge = new_edge
     return visited, vis
 
 
-@njit(cache=True)
+@jit(nopython=True, cache=True, fastmath=True)
 def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
     neighbors = np.array([[1, 0], [-1, 0], [0, 1], [0, -1]], dtype=np.int32)
     pixel = image
@@ -338,9 +339,9 @@ def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=
                     p = pixel[s, t]
                     full_edge = np.concatenate((full_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
                     if border is None:
-                        fill = (abs(p[0] - background[0]) +
-                                abs(p[1] - background[1]) +
-                                abs(p[2] - background[2])) <= thresh
+                        fill =  abs(p[0] - background[0]) <= thresh and \
+                                abs(p[1] - background[1]) <= thresh and \
+                                abs(p[2] - background[2]) <= thresh
                     else:
                         fill = (
                                 (p[0] != value[0] or p[1] != value[1] or p[2] != value[2]) and
