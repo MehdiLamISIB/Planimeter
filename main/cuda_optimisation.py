@@ -189,22 +189,19 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
 
 def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thresh=0):
 
+    """
     def color_diff(color1, color2):
-        """
-        Uses 1-norm distance to calculate difference between two values.
-        """
         if isinstance(color2, tuple):
             return sum(abs(color1[i] - color2[i]) for i in range(0, len(color2)))
         else:
             return abs(color1 - color2)
+    """
 
-    pixel = np.copy(image)
+    pixel = np.array(image)
     x, y = xy
 
     background = tuple(pixel[x, y])
     edge = {(x, y)}
-    # use a set to keep record of current and previous edge pixels
-    # to reduce memory consumption
     full_edge = set()
     while edge:
         new_edge = set()
@@ -220,15 +217,17 @@ def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thre
                 else:
                     full_edge.add((s, t))
                     if border is None:
-                        fill = color_diff(p, background) <= thresh
+                        #fill = color_diff(p, background) <= thresh
+                        if isinstance(background, tuple):
+                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh
+                        else:
+                            fill = abs(color1 - color2) <= thresh
                     else:
+
                         fill = p != value and p != border
                     if fill:
-                        # pixel[s, t] = value
                         new_edge.add((s, t))
-                        # print("TEST S AND T")
-                        # print(s)
-                        # print(t)
+
                         vis[s][t] = 1
                         visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis=0)
 

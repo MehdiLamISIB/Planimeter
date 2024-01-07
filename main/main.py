@@ -301,7 +301,7 @@ def main_application():
 
     app_menu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Application", menu=app_menu)
-    app_menu.add_checkbutton(label="cuda optimisation", variable=TOOGLE_CUDA_CHOOSE, onvalue=True, offvalue=False)
+    app_menu.add_checkbutton(label="optimisation", variable=TOOGLE_CUDA_CHOOSE, onvalue=True, offvalue=False)
 
     app_menu.add_command(label="Close", command=close_app)
     app_menu.add_command(label="Credit", command=credit_app)

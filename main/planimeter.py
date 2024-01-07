@@ -207,7 +207,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
 
         end_time = time.time()
         elapsed_time = end_time - start_time
-        print(f"Elapsed time CUDA==FALSE: {elapsed_time} seconds")
+        print(f"Elapsed time OPTIMISATION==FALSE: {elapsed_time} seconds")
     else:
 
         # visited = gpu_optimisation.scanline_fill(np.array([x, y]), visited, colmax, colmin, data, n, m)
@@ -261,7 +261,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
 
         end_time = time.time()
         elapsed_time = end_time - start_time
-        print(f"Elapsed time CUDA==TRUE: {elapsed_time} seconds")
+        print(f"Elapsed time OPTIMISATION==TRUE: {elapsed_time} seconds")
         #print("VISITED --> ",visited)
         #print("VIS --> ",vis)
         """
