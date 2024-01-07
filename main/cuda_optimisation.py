@@ -4,7 +4,6 @@ from numba import njit
 import numpy as np
 import cv2
 
-
 STATIC_CALL_INCREMENT = 0
 
 """
@@ -193,19 +192,30 @@ def optimized_fill(obj, x, y, visited, vis, colmax, colmin, data, n, m):
 # TEST AVEC EDGES & VERTICES
 # TEST AVEC EDGES & VERTICES
 
-
+"""
 def color_diff(color1, color2):
-    """
-    Uses 1-norm distance to calculate difference between two values.
-    """
+
+    # Uses 1-norm distance to calculate difference between two values.
+    
     if isinstance(color2, tuple):
         return sum(abs(color1[i] - color2[i]) for i in range(0, len(color2)))
     else:
         return abs(color1 - color2)
+"""
 
 
 # modified and took from PILLOW open source library
 def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thresh=0):
+
+    def color_diff(color1, color2):
+        """
+        Uses 1-norm distance to calculate difference between two values.
+        """
+        if isinstance(color2, tuple):
+            return sum(abs(color1[i] - color2[i]) for i in range(0, len(color2)))
+        else:
+            return abs(color1 - color2)
+
     pixel = np.copy(image)
     x, y = xy
 
@@ -243,3 +253,93 @@ def flood_fill_pil_inspiration(image, xy, value, visited, vis, border=None, thre
         full_edge = edge  # discard pixels processed
         edge = new_edge
     return visited, vis
+
+
+
+def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
+
+    def color_diff(color1, color2):
+        a1, a2, a3 = color1
+        b1, b2, b3 = color2
+        val = (abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3)) // 3
+        if val >255:
+            return 255
+        elif val < 0:
+            return 0
+        else:
+            return val
+
+    pixel = image.copy()  # Avoid using np.copy inside the function
+    x, y = xy
+
+    background = pixel[x, y]
+    while edge.shape[0] > 0:
+        new_edge = np.empty((0, 2), dtype=np.int32)
+        for idx in range(edge.shape[0]):
+            x, y = edge[idx]
+            for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]], dtype=np.int32):
+                if (np.array([s, t]) in full_edge) or s < 0 or t < 0:
+                    continue
+                else:
+                    full_edge = np.concatenate((full_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
+
+                    p = pixel[s, t]
+
+                    if border is None:
+                        fill = color_diff(p, background) <= thresh
+                    else:
+
+                        # fill = np.all(p != np.array(value)) and p != border
+                        p1, p2, p3 = p
+                        v1, v2, v3 = value
+                        br1, br2, br3 = border
+                        fill = (p1!=v1 or p2!=v2 or p3!=v3) and (p1!=br1 or p2!=br2 or p3!=br3)
+                    if fill:
+                        new_edge = np.concatenate((new_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
+                        vis[s][t] = 1
+                        visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis = 0)
+        full_edge = edge.copy()
+        edge = new_edge.copy()
+    return visited, vis
+
+
+"""
+    def color_diff(color1, color2):
+        a1, a2, a3 = color1
+        b1, b2, b3 = color2
+
+        return (np.abs(a1-b1) + np.abs(a2-b2) + np.abs(a3-b3)) /3
+
+    pixel = np.copy(image)
+    x, y = xy
+
+    background = pixel[x, y]
+    # edge = np.empty()
+    # use a set to keep record of current and previous edge pixels
+    # to reduce memory consumption
+    # full_edge = []
+    while edge.shape[0] > 0:
+        new_edge = np.empty(5, np.int32)
+        for x, y in edge:  # 4 adjacent method
+            for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]]):
+                # If already processed, or if a coordinate is negative, skip
+                if (s, t) in full_edge or s < 0 or t < 0:
+                    continue
+                else:
+                    p = pixel[s, t]
+                    full_edge = np.concatenate((full_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
+                    if border is None:
+                        fill = color_diff(p, background) <= thresh
+                    else:
+                        # fill = p != value and p != border
+                        fill = np.any(p != np.array(value)) and p != border
+                    if fill:
+                        # pixel[s, t] = value
+                        new_edge.add((s, t))
+                        vis[s][t] = 1
+                        visited = np.concatenate((visited, np.array([[s, t]], dtype=np.int32)), axis=0)
+
+        full_edge = edge.copy() # discard pixels processed
+        edge = new_edge.copy()
+    return visited, vis
+"""
