@@ -270,9 +270,8 @@ def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=N
             if np.array_equal(arr, target):
                 return True
         return False
-    pixel = image # Avoid using np.copy inside the function
+    pixel = image
     x, y = xy
-
     background = pixel[x, y]
     # full_edge = np.empty((0, 2), dtype=np.int32)
     while edge.shape[0] > 0:
@@ -280,28 +279,21 @@ def flood_fill_pil_jit(image, xy, value, visited, vis, edge, full_edge, border=N
         for idx in range(edge.shape[0]):
             x, y = edge[idx]
             for s, t in np.array([[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]], dtype=np.int32):
-                #
-                #                    any(np.equal(full_edge,[s,t]).all(1)):
                 if s < 0 or t < 0 or check_in_list(full_edge, [s, t]):
                     continue
                 else:
                     p = pixel[s, t]
                     full_edge = np.concatenate((full_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
                     if border is None:
-                        # fill = color_diff(p, background) <= thresh
                         fill = (abs(p[0] - background[0]) +
                                 abs(p[1] - background[1]) +
                                 abs(p[2] - background[2])) <= thresh * 3
-                        # fill = color_diff(p, background, thresh)
-                        # print("VALUE OF FILL --> ",fill,"\n")
                     else:
-                        # fill = np.all(p != np.array(value)) and p != border
-                        p1, p2, p3 = p
-                        v1, v2, v3 = value
-                        br1, br2, br3 = border
-                        fill = (p1!=v1 or p2!=v2 or p3!=v3) and (p1!=br1 or p2!=br2 or p3!=br3)
+                        fill = (
+                                (p[0] != value[0] or p[1] != value[1] or p[2] != value[2]) and
+                                (p[0] != border[0] or p[1] != border[1] or p[2] != border[2])
+                        )
                     if fill:
-                        # print("FILL IT")
                         pixel[s, t] = value
                         new_edge = np.concatenate((new_edge, np.array([[s, t]], dtype=np.int32)), axis=0)
                         vis[s][t] = 1
