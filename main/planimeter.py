@@ -220,7 +220,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             visited,
             vis,
             border=None,
-            thresh=30
+            thresh=range_val
         )
 
 

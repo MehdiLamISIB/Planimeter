@@ -151,7 +151,7 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
                             #       abs(p[2] - background[2]) <= thresh
                             fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh #*3
                         else:
-                            fill = abs(color1 - color2) <= thresh
+                            fill = abs(p - background) <= thresh
                     else:
                         fill = p != value and p != border
                     if fill:
