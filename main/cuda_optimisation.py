@@ -1,6 +1,7 @@
 from numba import cuda, int32
 from numba import jit
 from numba import njit
+from numba.cuda import initialize
 import numpy as np
 import cv2
 

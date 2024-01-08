@@ -1,4 +1,4 @@
-import tkinter as tk
+#import tkinter as tk
 import numpy as np
 import cv2
 import cuda_optimisation as gpu_optimisation
