@@ -174,7 +174,7 @@ def main_application():
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
                 # planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
                 show_caracteristic_area(planimeter.info_from_surface(pixel_list, REF_DENSITY*REF_COEFF_USER))
-                print(REF_COEFF_USER)
+                # print(REF_COEFF_USER)
                 # print(planimeter.info_from_surface(pixel_list, REF_DENSITY))
                 # C'est ici que je dois crée ma fenêtre pour montrer les infos et les mesures aussi
                 canvas.config(cursor="crosshair")
