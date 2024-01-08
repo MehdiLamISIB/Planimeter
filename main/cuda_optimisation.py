@@ -15,6 +15,35 @@ Pour ce code, je vais devoir :
 - en input : les nouvelles voisines,
 """
 
+"""
+@cuda.jit
+def canny_edge_detection(image, edges):
+    x, y = cuda.grid(2)
+    if x > 0 and x < image.shape[0] - 1 and y > 0 and y < image.shape[1] - 1:
+        mag = (image[x + 1, y] - image[x - 1, y]) ** 2 + (image[x, y + 1] - image[x, y - 1]) ** 2
+        if mag > 100:
+            image[x, y] = (0,0,0)
+
+def darken_edges(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+
+    d_image = cuda.to_device(blurred)
+    d_edges = cuda.device_array_like(blurred)
+    threadsperblock = (16, 16)
+    blockspergrid_x = (blurred.shape[0] + (threadsperblock[0] - 1)) // threadsperblock[0]
+    blockspergrid_y = (blurred.shape[1] + (threadsperblock[1] - 1)) // threadsperblock[1]
+    blockspergrid = (blockspergrid_x, blockspergrid_y)
+
+    canny_edge_detection[blockspergrid, threadsperblock](d_image, d_edges)
+    edges = d_edges.copy_to_host()
+    image = d_real_image.copy_to_host()
+
+    cuda.synchronize()
+
+    return image
+"""
+
 # change_color_kernel : permet de remplir les pixels de l'aire calculé
 
 
@@ -24,13 +53,15 @@ def change_color_kernel(image, coordinates, vis):
     if y < image.shape[0] and x < image.shape[1]:
         if vis[y,x] == 1:
             image[y, x] = (0, 0, 0)
+        # else:
+        #    image[y, x] = (255, 255 ,255)
 
 
 # change_color : appelle le kernel cuda et retourne la nouvelle image crée
 
 
 def change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
-    image = np.array(image_array) # cv2.imread(image_path)
+    image = np.copy(image_array) # cv2.imread(image_path)
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert image to RGB
     threadsperblock = (16, 16)
     blockspergrid_x = (image.shape[1] + threadsperblock[1] - 1) // threadsperblock[1]
@@ -49,8 +80,11 @@ def change_color(image_array, coordinates, vis, is_using_optimization, show_trai
         equ = cv2.equalizeHist(gray_image)
         return cv2.cvtColor(equ, cv2.COLOR_GRAY2BGR)
     else:
-        resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-        return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
+        if image.shape[0] > 600 or image.shape[1] > 600:
+            resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+            return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
+        else:
+            return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
 
 
 # @jit --> permet d'accelerer le code dans le CPU
@@ -112,7 +146,10 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
                     full_edge.add((s, t))
                     if border is None:
                         if isinstance(background, tuple):
-                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh*3
+                            # fill = abs(p[0] - background[0]) <= thresh and \
+                            #       abs(p[1] - background[1]) <= thresh and \
+                            #       abs(p[2] - background[2]) <= thresh
+                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh #*3
                         else:
                             fill = abs(color1 - color2) <= thresh
                     else:

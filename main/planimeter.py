@@ -149,6 +149,8 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     visited.append([y, x])
     data = np.copy(image_array)
 
+    #data = gpu_optimisation.darken_edges(image_array)
+
     precolor = data[y][x]
     colmin = precolor - np.array([range_val, range_val, range_val])
     colmax = precolor + np.array([range_val, range_val, range_val])

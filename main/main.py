@@ -222,9 +222,11 @@ def main_application():
             height, width, channels = img.shape
 
             # DX_MAX = 1280
-            DX_MAX = 1600
+            #DX_MAX = 1600
+            DX_MAX = 1169
             # DY_MAX = 720
-            DY_MAX = 1200
+            #DY_MAX = 1200
+            DY_MAX = 827
 
             if width > DX_MAX and height > DY_MAX:
                 coeff_x = float(DX_MAX / width)
