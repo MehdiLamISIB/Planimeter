@@ -1,9 +1,8 @@
-from numba import cuda, int32
+#from numba import cuda, int32
 from numba import jit
 from numba import njit
 import numpy as np
 import cv2
-import pyopencl as cl
 import math as math
 
 """
@@ -47,7 +46,7 @@ def darken_edges(image):
 
 # change_color_kernel : permet de remplir les pixels de l'aire calculé
 
-
+"""
 @cuda.jit
 def change_color_kernel(image, coordinates, vis):
     y, x = cuda.grid(2)
@@ -56,32 +55,6 @@ def change_color_kernel(image, coordinates, vis):
             image[y, x] = (0, 0, 0)
         # else:
         #    image[y, x] = (255, 255 ,255)
-
-
-@njit
-def change_color_jit(image_array, vis):
-    image = np.copy(image_array)
-    height, width = image.shape[0], image.shape[1]
-    for i in range(height):
-        for j in range(width):
-            if vis[i, j] == 1:
-                image[i, j] = (0, 0 , 0)
-    return image
-
-def jit_change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
-    vis = np.array(vis)
-    image = change_color_jit(image_array, vis)
-    if show_traited_image:
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        equ = cv2.equalizeHist(gray_image)
-        return cv2.cvtColor(equ, cv2.COLOR_GRAY2BGR)
-    else:
-        if image.shape[0] > 600 or image.shape[1] > 600:
-            resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-            return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
-        else:
-            return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
-
 
 # change_color : appelle le kernel cuda et retourne la nouvelle image crée
 
@@ -101,6 +74,32 @@ def change_color(image_array, coordinates, vis, is_using_optimization, show_trai
     change_color_kernel[blockspergrid, threadsperblock](d_image, d_coordinates, d_vis)
     d_image.copy_to_host(image)
 
+    if show_traited_image:
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        equ = cv2.equalizeHist(gray_image)
+        return cv2.cvtColor(equ, cv2.COLOR_GRAY2BGR)
+    else:
+        if image.shape[0] > 600 or image.shape[1] > 600:
+            resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+            return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
+        else:
+            return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
+"""
+
+
+@njit
+def change_color_jit(image_array, vis):
+    image = np.copy(image_array)
+    height, width = image.shape[0], image.shape[1]
+    for i in range(height):
+        for j in range(width):
+            if vis[i, j] == 1:
+                image[i, j] = (0, 0 , 0)
+    return image
+
+def jit_change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
+    vis = np.array(vis)
+    image = change_color_jit(image_array, vis)
     if show_traited_image:
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         equ = cv2.equalizeHist(gray_image)
