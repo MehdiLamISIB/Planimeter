@@ -218,8 +218,8 @@ def main_application():
                         text=f"Valid numeric value: {input_data}",
                         foreground="green",
                     )
-                    REF_COEFF_USER = float(input_data)
-                    time_python.sleep(1)
+                    REF_COEFF_USER = abs(float(input_data))
+                    time_python.sleep(0.2)
                     ref_value_window.destroy()
                 except ValueError:
                     label.config(
@@ -229,6 +229,9 @@ def main_application():
             else:
                 label.config(text="Entry is empty", foreground="red",)
 
+        def validate_with_enter(event):
+            validate_numbers()
+
         ref_value_window.title("Choose your reference")
         ref_value_window.geometry("300x100")
         ref_value_window.wm_resizable(False, False)
@@ -237,6 +240,8 @@ def main_application():
         #Entree
         entry = tk.Entry(ref_value_window, width=35)
         entry.grid(row=0, column=0, padx=5, pady=5)
+        entry.bind("<Return>", validate_with_enter)
+
         button = tk.Button(ref_value_window, text="Validate", command=validate_numbers)
         button.grid(row=0, column=1, padx=5, pady=5)
         label = tk.Label(ref_value_window, text="Value of reference [cm²]")
@@ -333,8 +338,8 @@ def main_application():
 
     app_menu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Application", menu=app_menu)
-    app_menu.add_checkbutton(label="optimisation", variable=TOOGLE_CUDA_CHOOSE, onvalue=True, offvalue=False)
-
+    app_menu.add_checkbutton(label="Optimisation", variable=TOOGLE_CUDA_CHOOSE, onvalue=True, offvalue=False)
+    # app_menu.add_command(label="Reference value", command=choose_value_reference_window)
     app_menu.add_command(label="Close", command=close_app)
     app_menu.add_command(label="Credit", command=credit_app)
 
