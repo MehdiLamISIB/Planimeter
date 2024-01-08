@@ -4,6 +4,7 @@ from numba import njit
 import numpy as np
 import cv2
 import pyopencl as cl
+import math as math
 
 """
 Pour ce code, je vais devoir :
@@ -57,56 +58,19 @@ def change_color_kernel(image, coordinates, vis):
         #    image[y, x] = (255, 255 ,255)
 
 
-def opencl_change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
-
+@njit
+def change_color_jit(image_array, vis):
     image = np.copy(image_array)
-    coordinates = np.array(coordinates)
+    height, width = image.shape[0], image.shape[1]
+    for i in range(height):
+        for j in range(width):
+            if vis[i, j] == 1:
+                image[i, j] = (0, 0 , 0)
+    return image
+
+def jit_change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
     vis = np.array(vis)
-    # OpenCL platform and device setup
-    platform = cl.get_platforms()[0]
-    device = platform.get_devices(device_type=cl.device_type.GPU)[0]
-    ctx = cl.Context([device])
-    queue = cl.CommandQueue(ctx)
-
-    # Memory allocation and data transfer to device
-    image_buffer = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.COPY_HOST_PTR, hostbuf=image)
-    # coordinates_buffer = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=coordinates)
-    vis_buffer = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=vis)
-
-    # Building OpenCL program and kernel
-    opencl_kernel_code = """
-    __kernel void change_color_kernel(__global uchar3* image, __global int2* vis) {
-        int y = get_global_id(0);
-        int x = get_global_id(1);
-
-        if (y < get_global_size(0) && x < get_global_size(1)) {
-            int index = y * get_global_size(1) + x-1;
-
-            if (vis[y][x] == 1) {
-                image[index] = (uchar3)(0, 0, 0);
-            }
-        }
-    }
-    """
-    program = cl.Program(ctx, opencl_kernel_code).build()
-    kernel = program.change_color_kernel
-
-    # Setting kernel arguments
-    # kernel.set_arg(0, image_buffer)
-    # kernel.set_arg(1, vis_buffer)
-
-    # Enqueue kernel execution
-    global_size = (image.shape[0], image.shape[1])
-    local_size = None  # Automatically determined
-    event = kernel(queue, global_size, local_size, image_buffer, vis_buffer).wait()
-
-    # Read the output data back to the host
-    cl.enqueue_copy(queue, image, image_buffer).wait()
-
-    # Cleanup
-    image_buffer.release()
-    vis_buffer.release()
-
+    image = change_color_jit(image_array, vis)
     if show_traited_image:
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         equ = cv2.equalizeHist(gray_image)
