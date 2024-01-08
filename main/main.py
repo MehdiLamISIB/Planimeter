@@ -5,6 +5,7 @@ import reference as ref
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
+import time as time_python
 """
 Projet :
 Cela semble être un projet intéressant et un peu complexe, mais nous pouvons le diviser en étapes plus petites. 
@@ -53,7 +54,7 @@ REF_DENSITY = None
 
 COEFF_X = 1
 COEFF_Y = 1
-
+REF_COEFF_USER = 1
 MAINWINDOW_WIDTH = 600
 MAINWINDOW_HEIGHT = 600
 
@@ -67,7 +68,7 @@ WINDOW_SHOW_AREA_INFO = None
 
 
 def main_application():
-    global EVENT_IMAGE_SET
+    global EVENT_IMAGE_SET, REF_COEFF_USER
 
     root = tk.Tk()
     root.title("Planimeter")
@@ -135,6 +136,8 @@ def main_application():
                 np.array(ref_visited).shape[0]
             )
 
+            choose_value_reference_window()
+
             EVENT_REFERENCE_DONE = True
             canvas.config(cursor="crosshair")
             # print("Reference calculé")
@@ -170,8 +173,8 @@ def main_application():
                 cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, vis, TOOGLE_CUDA_CHOOSE.get(), False))
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
                 # planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
-
-                show_caracteristic_area(planimeter.info_from_surface(pixel_list, REF_DENSITY))
+                show_caracteristic_area(planimeter.info_from_surface(pixel_list, REF_DENSITY*REF_COEFF_USER))
+                print(REF_COEFF_USER)
                 # print(planimeter.info_from_surface(pixel_list, REF_DENSITY))
                 # C'est ici que je dois crée ma fenêtre pour montrer les infos et les mesures aussi
                 canvas.config(cursor="crosshair")
@@ -201,6 +204,50 @@ def main_application():
         credit_window.geometry(f"+{x}+{y}")
         # Focus sur la fenêtre (permet d'éviter d'avoir des duplications
         credit_window.grab_set()
+
+    def choose_value_reference_window():
+        ref_value_window = tk.Toplevel(root)
+
+        def validate_numbers():
+            global REF_COEFF_USER
+            input_data = entry.get()
+            if input_data:
+                try:
+                    float(input_data)
+                    label.config(
+                        text=f"Valid numeric value: {input_data}",
+                        foreground="green",
+                    )
+                    REF_COEFF_USER = float(input_data)
+                    time_python.sleep(1)
+                    ref_value_window.destroy()
+                except ValueError:
+                    label.config(
+                        text=f'Numeric value expected, got "{input_data}"',
+                        foreground="red",
+                    )
+            else:
+                label.config(text="Entry is empty", foreground="red",)
+
+        ref_value_window.title("Choose your reference")
+        ref_value_window.geometry("300x100")
+        ref_value_window.wm_resizable(False, False)
+        ref_value_window.config()
+
+        #Entree
+        entry = tk.Entry(ref_value_window, width=35)
+        entry.grid(row=0, column=0, padx=5, pady=5)
+        button = tk.Button(ref_value_window, text="Validate", command=validate_numbers)
+        button.grid(row=0, column=1, padx=5, pady=5)
+        label = tk.Label(ref_value_window, text="Value of reference [cm²]")
+        label.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+
+        # Positionnement a peu pres au centre
+        x = root.winfo_rootx() + 100
+        y = root.winfo_rooty() + 100
+        ref_value_window.geometry(f"+{x}+{y}")
+        # Focus sur la fenêtre (permet d'éviter d'avoir des duplications
+        ref_value_window.grab_set()
 
     def close_app():
         root.quit()
