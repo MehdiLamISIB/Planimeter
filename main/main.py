@@ -111,8 +111,6 @@ def main_application():
                 label = create_label(f"{char_name}: {char_value}")
                 label.grid(row=i, column=0, sticky='w')
 
-    def change_cursor_to_set(event):
-        canvas.config(cursor="plus")
 
     def set_reference(event):
         global EVENT_IMAGE_SET, EVENT_REFERENCE_DONE, COEFF_X, COEFF_Y, REF_DENSITY, IMAGE_ARRAY, COLOR_RANGE
@@ -177,7 +175,6 @@ def main_application():
 
     # CANVAS
 
-    # canvas.config(cursor="watch") --> permet de faire chargement
     canvas = tk.Canvas(root, width=600, height=600, bg="black")
     canvas.config(cursor="crosshair")
     canvas.bind('<Button-1>', mouse_callback)
@@ -269,10 +266,12 @@ def main_application():
             height, width, channels = img.shape
 
             # DX_MAX = 1280
-            # DX_MAX = 1600
-            DX_MAX = 1169
-            # DY_MAX = 720
             # DY_MAX = 1200
+
+            # DX_MAX = 1600
+            # DY_MAX = 720
+
+            DX_MAX = 1169
             DY_MAX = 827
 
             if width > DX_MAX and height > DY_MAX:
@@ -334,7 +333,6 @@ def main_application():
     app_menu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Application", menu=app_menu)
     app_menu.add_checkbutton(label="Optimisation", variable=TOOGLE_CUDA_CHOOSE, onvalue=True, offvalue=False)
-    # app_menu.add_command(label="Reference value", command=choose_value_reference_window)
     app_menu.add_command(label="Close", command=close_app)
     app_menu.add_command(label="Credit", command=credit_app)
 
