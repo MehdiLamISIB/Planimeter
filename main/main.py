@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 import time as time_python
+
 """
 Projet :
 Cela semble être un projet intéressant et un peu complexe, mais nous pouvons le diviser en étapes plus petites. 
@@ -166,31 +167,25 @@ def main_application():
                                                      img_y_pos,
                                                      COLOR_RANGE,
                                                      IMAGE_ARRAY,
-                                                     showing_result=False,
-                                                     is_using_cuda=TOOGLE_CUDA_CHOOSE.get())
+                                                     showing_result = False,
+                                                     is_using_cuda = TOOGLE_CUDA_CHOOSE.get())
 
-                # print("LA REFERENCE A ETE CALCULE ---> ", REF_DENSITY, "mm²/pixel (BIEN CALCULER)")
                 cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, vis, TOOGLE_CUDA_CHOOSE.get(), False))
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
-                # planimeter.display_surface_info(planimeter.info_from_surface(pixel_list, REF_DENSITY))
                 show_caracteristic_area(planimeter.info_from_surface(pixel_list, REF_DENSITY*REF_COEFF_USER))
-                # print(REF_COEFF_USER)
-                # print(planimeter.info_from_surface(pixel_list, REF_DENSITY))
-                # C'est ici que je dois crée ma fenêtre pour montrer les infos et les mesures aussi
                 canvas.config(cursor="crosshair")
 
     # CANVAS
+
     # canvas.config(cursor="watch") --> permet de faire chargement
     canvas = tk.Canvas(root, width=600, height=600, bg="black")
     canvas.config(cursor="crosshair")
     canvas.bind('<Button-1>', mouse_callback)
-    # canvas.bind('<Double-Button-1>', set_reference)
     canvas.bind('<Button-3>', set_reference)
-    # canvas.bind('<Button-3>', change_cursor_to_set)
     canvas.pack()
 
     def credit_app():
-        msg = "Application created by Mehdi Lamrabet\n Planimeter - 2023©"
+        msg = "Application created by Mehdi Lamrabet\n Planimeter - 2024©"
         credit_window = tk.Toplevel(root)
         credit_window.title("Credit")
         credit_window.geometry("400x50")
@@ -237,7 +232,7 @@ def main_application():
         ref_value_window.wm_resizable(False, False)
         ref_value_window.config()
 
-        #Entree
+        # Entree
         entry = tk.Entry(ref_value_window, width=35)
         entry.grid(row=0, column=0, padx=5, pady=5)
         entry.bind("<Return>", validate_with_enter)
@@ -274,10 +269,10 @@ def main_application():
             height, width, channels = img.shape
 
             # DX_MAX = 1280
-            #DX_MAX = 1600
+            # DX_MAX = 1600
             DX_MAX = 1169
             # DY_MAX = 720
-            #DY_MAX = 1200
+            # DY_MAX = 1200
             DY_MAX = 827
 
             if width > DX_MAX and height > DY_MAX:

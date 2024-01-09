@@ -1,4 +1,3 @@
-#import tkinter as tk
 import numpy as np
 import cv2
 import cuda_optimisation as gpu_optimisation
@@ -40,21 +39,21 @@ def info_from_surface(pixels_list, ref_density):
         min_coord = "("+str(x_min)+";"+str(y_min)+")"
         max_coord = "("+str(x_max)+";"+str(y_max)+")"
         ratio = str(round((y_max-y_min)/(x_max-x_min), 2))
-        return [("Aire", area),
+        return [("Area", area),
                 ("Barycentre", barycentre),
                 ("Min x/y", min_coord),
                 ("Max x/y", max_coord),
-                ("ratio Hauteur/Largeur", ratio)
+                ("ratio Height/Width", ratio)
                 ]
     except Exception as e:
         print("\n-----"*2)
         print("Error", e)
         print("-----\n"*2)
-        return [("Aire", "None"),
+        return [("Area", "None"),
                 ("Barycentre", "None"),
                 ("Min x/y", "None"),
                 ("Max x/y", "None"),
-                ("ratio Hauteur/Largeur", "None")
+                ("ratio Height/Width", "None")
                 ]
 
 
@@ -69,34 +68,6 @@ def on_closing():
     set_past_postion()
     ROOT_INFOBOX_TKINTER.destroy()
     ROOT_INFOBOX_TKINTER = None
-
-
-# display_surface_info : affiche les infos sur la geometrie
-
-
-def display_surface_info(characteristics):
-    global ROOT_INFOBOX_TKINTER, SCREEN_X_FAV, SCREEN_Y_FAV
-    if ROOT_INFOBOX_TKINTER is not None:
-        set_past_postion()
-        ROOT_INFOBOX_TKINTER.destroy()
-        ROOT_INFOBOX_TKINTER = None
-    root = tk.Tk()
-    root.title("Info surface")
-    root.protocol("WM_DELETE_WINDOW", on_closing)
-    frame = tk.Frame(root, padx=20, pady=10, name="infobox")
-
-    def create_label(text):
-        return tk.Label(frame, text=text, font=('Arial', 12), padx=10, pady=5, anchor='w')
-
-    for i, (char_name, char_value) in enumerate(characteristics):
-        label = create_label(f"{char_name}: {char_value}")
-        label.grid(row=i, column=0, sticky='w')
-
-    frame.grid(padx=20, pady=20)
-    ROOT_INFOBOX_TKINTER = root
-    root.geometry("{0}x{1}+{2}+{3}".format(300, 200, SCREEN_X_FAV, SCREEN_Y_FAV))
-    root.mainloop()
-
 
 # Verifie les coordonnes pour pas depasser
 
