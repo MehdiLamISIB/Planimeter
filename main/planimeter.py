@@ -121,8 +121,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
     visited.append([y, x])
     data = np.copy(image_array)
 
-    #data = gpu_optimisation.darken_edges(image_array)
-
     precolor = data[y][x]
     colmin = precolor - np.array([range_val, range_val, range_val])
     colmax = precolor + np.array([range_val, range_val, range_val])
@@ -178,11 +176,10 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         obj_array = np.empty((0, 4), dtype=np.int32)
         visited_array = np.array(visited).reshape((len(visited), 2))
         vis_array = np.array(vis).reshape(m, n)
-        edge = np.array([y, x], dtype=np.int32).reshape((1,2))
+        edge = np.array([y, x], dtype=np.int32).reshape((1, 2))
         full_edge = np.empty(shape=(0, 2), dtype=np.int32)
 
         start_time = time.time()
-
 
         # LE plus rapide
         visited, vis = gpu_optimisation.flood_fill_optimisation_final(
@@ -197,6 +194,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
 
 
         # LE 2EME, 2x plus lent que le 1er
+
         """
         visited, vis = gpu_optimisation.flood_fill_opti_jit(
             np.array(image_array),
@@ -208,21 +206,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             full_edge,
             border=None,
             thresh=30)
-        """
-
-        # LE DERNIER, 2x plus lent que le 2eme
-        """
-        visited, vis = gpu_optimisation.optimized_fill(
-            obj_array,
-            x,
-            y,
-            visited_array,
-            vis_array,
-            colmax,
-            colmin,
-            data,
-            n,
-            m)
         """
 
         end_time = time.time()
