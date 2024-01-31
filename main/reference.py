@@ -18,51 +18,6 @@ CM_SQUARED_TO_MM_SQUARED = 100
 def ppi_to_pixel_number(x, y, ppp): return (x*ppp/INCH_TO_CM)*(y*ppp/INCH_TO_CM)
 
 
-"""
-def rescale_image(image, xres, yres):
-    
-    # Permet de mettre change la résolution de l'image affiché
-    # :param image: image à afficher
-    # :param xres: diviseur en x (ex. xres=2 --> x=x/2)
-    # :param yres: diviseur en y
-    # :return:
-    scale_percent = 60  # percent of original size
-    width = int(image.shape[1] * scale_percent / xres)
-    height = int(image.shape[0] * scale_percent / yres)
-    dim = (width, height)
-    image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-    return image
-
-
-# draw_rectangle_evenement : JE NE VAIS PAS UTILISER CELA, JE VAIS CLIQUER ET PUIS CA VA DONNER PIXEL DANS 1cm²
-
-
-def draw_rectangle_evenement(event, x, y, flags, param):
-    # Permet de dessiner la référence de 1cm et de récuper la diagonale
-    # :param event: event de la fenêtre openCV
-    # :param x: position x de la souris
-    # :param y: position y de la souris
-    # :param flags:
-    # :param param:
-    # :return: [position x, position y, référence faites]
-    if event == cv2.EVENT_LBUTTONDOWN:
-        return [x, y, False]
-    if event == cv2.EVENT_LBUTTONUP:
-        return [x, y, True]
-    else:
-        return [x, y, None]
-
-# set_reference: EVENT N°1 pour meilleur lisibilité
-
-
-def set_reference_opencv(event, x, y, flags, param):
-    if event == cv2.EVENT_LBUTTONDOWN:
-        return True
-    else:
-        return False
-"""
-
-
 # FONCTION APPLIQUE SI UTILISATION AVEC 4 COINS ET 2 CLICK SOURIS POUR FAIRE CARREE
 # pixel_per_cm : retourne le nombre de pixel dans 1cm² ce qui donne la densité pixel/cm²
 

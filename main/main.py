@@ -111,7 +111,6 @@ def main_application():
                 label = create_label(f"{char_name}: {char_value}")
                 label.grid(row=i, column=0, sticky='w')
 
-
     def set_reference(event):
         global EVENT_IMAGE_SET, EVENT_REFERENCE_DONE, COEFF_X, COEFF_Y, REF_DENSITY, IMAGE_ARRAY, COLOR_RANGE
 
@@ -162,13 +161,18 @@ def main_application():
                 canvas.config(cursor="watch")
 
                 pixel_list, vis = planimeter.surface_area(img_x_pos,
-                                                     img_y_pos,
-                                                     COLOR_RANGE,
-                                                     IMAGE_ARRAY,
-                                                     showing_result = False,
-                                                     is_using_cuda = TOOGLE_CUDA_CHOOSE.get())
+                                                          img_y_pos,
+                                                          COLOR_RANGE,
+                                                          IMAGE_ARRAY,
+                                                          showing_result=False,
+                                                          is_using_cuda=TOOGLE_CUDA_CHOOSE.get())
 
-                cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY, pixel_list, vis, TOOGLE_CUDA_CHOOSE.get(), False))
+                cv2.imshow('Area selectionned', planimeter.draw_foundedarea(IMAGE_ARRAY,
+                                                                            pixel_list,
+                                                                            vis,
+                                                                            TOOGLE_CUDA_CHOOSE.get(),
+                                                                            False)
+                           )
                 # je dessine d'abord car après quand la fenêtre est ouverte, l'application est focus sur cette fenêtre
                 show_caracteristic_area(planimeter.info_from_surface(pixel_list, REF_DENSITY*REF_COEFF_USER))
                 canvas.config(cursor="crosshair")
@@ -211,7 +215,6 @@ def main_application():
                         foreground="green",
                     )
                     REF_COEFF_USER = abs(float(input_data))
-                    #time_python.sleep(0.2)
                     sleep(0.2)
                     ref_value_window.destroy()
                 except ValueError:
