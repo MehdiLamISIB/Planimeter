@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 import time as time_python
+from time import sleep
 
 """
 Projet :
@@ -211,7 +212,8 @@ def main_application():
                         foreground="green",
                     )
                     REF_COEFF_USER = abs(float(input_data))
-                    time_python.sleep(0.2)
+                    #time_python.sleep(0.2)
+                    sleep(0.2)
                     ref_value_window.destroy()
                 except ValueError:
                     label.config(

@@ -1,91 +1,7 @@
-# from numba import cuda, int32
 from numba import jit
 from numba import njit
 import numpy as np
 import cv2
-import math as math
-
-"""
-Pour ce code, je vais devoir :
-- prendre en compte que mon tableau de valeur grandira au fur est à mesure
-- on commence avec une cellule qui a 4 voisines
-- puis ces 4 voisines on 4 voisines chacunes, et ça évolue de façon exponentionnelle
-- y=4^x
-- ça sera une fonction en recursion qui s'arrête quand aucune valeur est voisines (bord)
-- en input : les nouvelles voisines,
-"""
-
-"""
-@cuda.jit
-def canny_edge_detection(image, edges):
-    x, y = cuda.grid(2)
-    if x > 0 and x < image.shape[0] - 1 and y > 0 and y < image.shape[1] - 1:
-        mag = (image[x + 1, y] - image[x - 1, y]) ** 2 + (image[x, y + 1] - image[x, y - 1]) ** 2
-        if mag > 100:
-            image[x, y] = (0,0,0)
-
-def darken_edges(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
-
-    d_image = cuda.to_device(blurred)
-    d_edges = cuda.device_array_like(blurred)
-    threadsperblock = (16, 16)
-    blockspergrid_x = (blurred.shape[0] + (threadsperblock[0] - 1)) // threadsperblock[0]
-    blockspergrid_y = (blurred.shape[1] + (threadsperblock[1] - 1)) // threadsperblock[1]
-    blockspergrid = (blockspergrid_x, blockspergrid_y)
-
-    canny_edge_detection[blockspergrid, threadsperblock](d_image, d_edges)
-    edges = d_edges.copy_to_host()
-    image = d_real_image.copy_to_host()
-
-    cuda.synchronize()
-
-    return image
-"""
-
-# change_color_kernel : permet de remplir les pixels de l'aire calculé
-
-"""
-@cuda.jit
-def change_color_kernel(image, coordinates, vis):
-    y, x = cuda.grid(2)
-    if y < image.shape[0] and x < image.shape[1]:
-        if vis[y,x] == 1:
-            image[y, x] = (0, 0, 0)
-        # else:
-        #    image[y, x] = (255, 255 ,255)
-
-# change_color : appelle le kernel cuda et retourne la nouvelle image crée
-
-
-def change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
-    image = np.copy(image_array) # cv2.imread(image_path)
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert image to RGB
-    threadsperblock = (16, 16)
-    blockspergrid_x = (image.shape[1] + threadsperblock[1] - 1) // threadsperblock[1]
-    blockspergrid_y = (image.shape[0] + threadsperblock[0] - 1) // threadsperblock[0]
-    blockspergrid = (blockspergrid_y, blockspergrid_x)
-
-    d_image = cuda.to_device(image)
-    d_coordinates = cuda.to_device(np.array(coordinates))
-    d_vis = cuda.to_device(np.array(vis))
-
-    change_color_kernel[blockspergrid, threadsperblock](d_image, d_coordinates, d_vis)
-    d_image.copy_to_host(image)
-
-    if show_traited_image:
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        equ = cv2.equalizeHist(gray_image)
-        return cv2.cvtColor(equ, cv2.COLOR_GRAY2BGR)
-    else:
-        if image.shape[0] > 600 or image.shape[1] > 600:
-            resize_img = cv2.resize(image, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-            return cv2.cvtColor(resize_img, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
-        else:
-            return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)  # Convert image back to BGR for OpenCV
-"""
-
 
 @njit
 def change_color_jit(image_array, vis):
@@ -96,6 +12,7 @@ def change_color_jit(image_array, vis):
             if vis[i, j] == 1:
                 image[i, j] = (0, 0 , 0)
     return image
+
 
 def jit_change_color(image_array, coordinates, vis, is_using_optimization, show_traited_image):
     vis = np.array(vis)
