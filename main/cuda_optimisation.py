@@ -69,10 +69,9 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
     return visited, vis
 
 
-def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, thresh=0):
+def flood_fill_optimisation_final(image, xy, visited, vis, colmin, colmax):
     pixel = np.array(image)
     x, y = xy
-    background = tuple(pixel[x, y])
     edge = {(x, y)}
     full_edge = set()
     while edge:
@@ -87,16 +86,11 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
                     pass
                 else:
                     full_edge.add((s, t))
-                    if border is None:
-                        if isinstance(background, tuple):
-                            # fill = abs(p[0] - background[0]) <= thresh and \
-                            #       abs(p[1] - background[1]) <= thresh and \
-                            #       abs(p[2] - background[2]) <= thresh
-                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh
-                        else:
-                            fill = abs(p - background) <= thresh
-                    else:
-                        fill = p != value and p != border
+
+                    fill = colmin[0] <= p[0] <= colmax[0] and \
+                           colmin[1] <= p[1] <= colmax[1] and \
+                           colmin[2] <= p[2] <= colmax[2]
+
                     if fill:
                         new_edge.add((s, t))
                         vis[s][t] = 1
