@@ -99,7 +99,6 @@ def showfounded_area(visited, n, m):
 
 
 def draw_foundedarea(image_array, pixels_list, vis, is_using_cuda, show_traited_image):
-    # return gpu_optimisation.change_color(image_array, pixels_list, vis, is_using_cuda, show_traited_image)
     return gpu_optimisation.jit_change_color(image_array, pixels_list, vis, is_using_cuda, show_traited_image)
 
 
