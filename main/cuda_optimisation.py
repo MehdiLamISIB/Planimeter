@@ -1,7 +1,8 @@
-from numba import jit
+# from numba import jit
 from numba import njit
 import numpy as np
 import cv2
+
 
 @njit
 def change_color_jit(image_array, vis):
@@ -91,7 +92,7 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
                             # fill = abs(p[0] - background[0]) <= thresh and \
                             #       abs(p[1] - background[1]) <= thresh and \
                             #       abs(p[2] - background[2]) <= thresh
-                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh #*3
+                            fill = sum(abs(p[i] - background[i]) for i in range(0, 3)) <= thresh
                         else:
                             fill = abs(p - background) <= thresh
                     else:
@@ -99,12 +100,13 @@ def flood_fill_optimisation_final(image, xy, value, visited, vis, border=None, t
                     if fill:
                         new_edge.add((s, t))
                         vis[s][t] = 1
-                        visited.append([s,t])
+                        visited.append([s, t])
         full_edge = edge
         edge = new_edge
     return np.array(visited), vis
 
 
+"""
 @jit(nopython=True, cache=True, fastmath=True)
 def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=None, thresh=0):
     neighbors = np.array([[1, 0], [-1, 0], [0, 1], [0, -1]], dtype=np.int32)
@@ -149,3 +151,4 @@ def flood_fill_opti_jit(image, xy, value, visited, vis, edge, full_edge, border=
         full_edge = edge  # discard pixels processed
         edge = new_edge
     return visited, vis
+"""
