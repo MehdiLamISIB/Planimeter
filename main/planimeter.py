@@ -1,5 +1,5 @@
 import numpy as np
-import cv2
+from cv2 import imshow
 import cuda_optimisation as gpu_optimisation
 import time
 
@@ -95,7 +95,7 @@ def showfounded_area(visited, n, m):
     b = np.array([255, 255, 255])
     res = np.array([[b * visited[i][j] for j in range(n)] for i in range(m)])
     img_search = res.astype(np.uint8)
-    cv2.imshow('Area found', img_search)
+    imshow('Area found', img_search)
 
 
 def draw_foundedarea(image_array, pixels_list, vis, is_using_cuda, show_traited_image):
@@ -152,23 +152,7 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
                     obj.append([x + pos[0], y + pos[1]])
                     visited.append([x + pos[0], y + pos[1]])
                     vis[x + pos[0]][y + pos[1]] = 1
-        """
-        obj_array = np.array(obj).reshape((len(obj), 2))
-        visited_array = np.array(visited).reshape((len(visited), 2))
-        vis_array = np.array(vis).reshape(n, m)
 
-        
-
-        visited, vis = gpu_optimisation.bfs_jit_parallell(
-            obj_array,
-            visited_array,
-            vis_array,
-            colmax,
-            colmin,
-            data,
-            n,
-            m)
-        """
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"Elapsed time OPTIMISATION==FALSE: {elapsed_time} seconds")
@@ -191,22 +175,6 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
             border=None,
             thresh=range_val
         )
-
-
-        # LE 2EME, 2x plus lent que le 1er
-
-        """
-        visited, vis = gpu_optimisation.flood_fill_opti_jit(
-            np.array(image_array),
-            (y, x),
-            np.array([0, 0, 0]),
-            visited_array,
-            vis_array,
-            edge,
-            full_edge,
-            border=None,
-            thresh=30)
-        """
 
         end_time = time.time()
         elapsed_time = end_time - start_time
