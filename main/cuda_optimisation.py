@@ -1,4 +1,3 @@
-# from numba import jit
 from numba import njit
 import numpy as np
 import cv2
@@ -11,7 +10,7 @@ def change_color_jit(image_array, vis):
     for i in range(height):
         for j in range(width):
             if vis[i, j] == 1:
-                image[i, j] = (0, 0 , 0)
+                image[i, j] = (0, 0, 0)
     return image
 
 
@@ -69,7 +68,7 @@ def bfs_jit_parallell(obj, visited, vis, colmax, colmin, data, n, m):
     return visited, vis
 
 
-def flood_fill_optimisation_final(image, xy, visited, vis, colmin, colmax):
+def flood_fill_optimisation_final(image, xy, visited, vis, cmin, cmax):
     pixel = np.array(image)
     x, y = xy
     edge = {(x, y)}
@@ -86,10 +85,7 @@ def flood_fill_optimisation_final(image, xy, visited, vis, colmin, colmax):
                     pass
                 else:
                     full_edge.add((s, t))
-
-                    fill = colmin[0] <= p[0] <= colmax[0] and \
-                           colmin[1] <= p[1] <= colmax[1] and \
-                           colmin[2] <= p[2] <= colmax[2]
+                    fill = cmin[0] <= p[0] <= cmax[0] and cmin[1] <= p[1] <= cmax[1] and cmin[2] <= p[2] <= cmax[2]
 
                     if fill:
                         new_edge.add((s, t))

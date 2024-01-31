@@ -12,7 +12,7 @@ SCREEN_Y_FAV = 30
 
 
 def info_from_surface(pixels_list, ref_density):
-    INT_INFITE = 10**26
+    INT_INFITE = 10**24
 
     pixels_list = np.array(pixels_list)
     count = pixels_list.shape[0]
