@@ -5,7 +5,6 @@ import reference as ref
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
-import time as time_python
 from time import sleep
 
 """
@@ -80,7 +79,7 @@ def main_application():
     # TKINTER NATIVE VARIABLE
 
     TOOGLE_CUDA_CHOOSE = tk.BooleanVar()
-    TOOGLE_CUDA_CHOOSE.set(False)
+    TOOGLE_CUDA_CHOOSE.set(True)
 
     # CANVAS FUNCTION AND EVENT
 

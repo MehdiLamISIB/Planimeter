@@ -157,12 +157,11 @@ def surface_area(x, y, range_val, image_array, showing_result, is_using_cuda):
         elapsed_time = end_time - start_time
         print(f"Elapsed time OPTIMISATION==FALSE: {elapsed_time} seconds")
     else:
-        obj_array = np.empty((0, 4), dtype=np.int32)
-        visited_array = np.array(visited).reshape((len(visited), 2))
-        vis_array = np.array(vis).reshape(m, n)
-        edge = np.array([y, x], dtype=np.int32).reshape((1, 2))
-        full_edge = np.empty(shape=(0, 2), dtype=np.int32)
-
+       # obj_array = np.empty((0, 4), dtype=np.int32)
+       # visited_array = np.array(visited).reshape((len(visited), 2))
+       # vis_array = np.array(vis).reshape(m, n)
+       # edge = np.array([y, x], dtype=np.int32).reshape((1, 2))
+       # full_edge = np.empty(shape=(0, 2), dtype=np.int32)
         start_time = time.time()
 
         # LE plus rapide
